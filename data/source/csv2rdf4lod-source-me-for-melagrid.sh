@@ -359,7 +359,7 @@ export CSV2RDF4LOD_PUBLISH_COMPRESS="true"
 #
 # (done in convert-aggregate.sh)
 #
-export CSV2RDF4LOD_PUBLISH_PURGE_AUTODIRS="true"
+export CSV2RDF4LOD_PUBLISH_PURGE_AUTODIR="true"
 export CSV2RDF4LOD_PUBLISH_PURGE_AUTODIR="false"
 
 
@@ -373,7 +373,7 @@ export CSV2RDF4LOD_PUBLISH_PURGE_AUTODIR="false"
 # (done in cr-publish-void-to-endpoint.sh)
 #
 export CSV2RDF4LOD_PUBLISH_OUR_SOURCE_ID="twc-rpi-edu"
-export CSV2RDF4LOD_PUBLISH_OUR_SOURCE_ID=""
+export CSV2RDF4LOD_PUBLISH_OUR_SOURCE_ID="melagrid-org"
 
 #
 # Customize: Specify the "base" conversion_identifier
