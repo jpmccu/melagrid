@@ -40,7 +40,7 @@ export CSV2RDF4LOD_HOME="/home/lebot/opt/prizms/repos/csv2rdf4lod-automation"
 #
 # a conversion:ProjectLevelEnvironmentVariable
 export CSV2RDF4LOD_CKAN="true"
-export CSV2RDF4LOD_CKAN="false"
+export CSV2RDF4LOD_CKAN="true"
 
 #
 # Customize: This csv2rdf4lod node is pulling datasets from a third party CKAN.
