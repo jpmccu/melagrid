@@ -51,7 +51,7 @@ export CSV2RDF4LOD_CKAN="false"
 #
 # a conversion:ProjectLevelEnvironmentVariable
 export CSV2RDF4LOD_CKAN_SOURCE="http://hub.healthdata.gov"
-export CSV2RDF4LOD_CKAN_SOURCE=""
+export CSV2RDF4LOD_CKAN_SOURCE="http://data.melagrid.org"
 
 #
 # Customize: This csv2rdf4lod has its own writable CKAN instance.
