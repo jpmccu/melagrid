@@ -1,7 +1,3 @@
-install.sh:
-   has created my-csv2rdf4lod-source-me.sh.
-   has set $CSV2RDF4LOD_HOME to /home/lebot/opt/prizms/repos/csv2rdf4lod-automation in my-csv2rdf4lod-source-me.sh
-
 #3> <#> a <http://purl.org/twc/vocab/conversion/CSV2RDF4LOD_environment_variables> ;
 #3>     rdfs:seeAlso
 #3>     <https://github.com/timrdf/csv2rdf4lod-automation/wiki/CSV2RDF4LOD-environment-variables-%28considerations-for-a-distributed-workflow%29>,
