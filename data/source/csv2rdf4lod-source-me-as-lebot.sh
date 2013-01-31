@@ -5,3 +5,4 @@
 
 export CSV2RDF4LOD_CONVERT_PERSON_URI='http://tw.rpi.edu/instances/TimLebo'
 export PATH=$PATH`/home/lebot/opt/prizms/bin/install/paths.sh`
+export CLASSPATH=$CLASSPATH`/home/lebot/opt/prizms/bin/install/classpaths.sh`
