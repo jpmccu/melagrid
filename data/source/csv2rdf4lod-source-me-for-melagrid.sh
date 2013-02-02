@@ -1,9 +1,9 @@
+
 #3> <#> a <http://purl.org/twc/vocab/conversion/CSV2RDF4LOD_environment_variables> ;
 #3>     rdfs:seeAlso
 #3>     <https://github.com/timrdf/csv2rdf4lod-automation/wiki/CSV2RDF4LOD-environment-variables-%28considerations-for-a-distributed-workflow%29>,
 #3>     <https://github.com/timrdf/csv2rdf4lod-automation/wiki/Script:-source-me.sh> .
 
-export CSV2RDF4LOD_HOME="/home/lebot/opt/prizms/repos/csv2rdf4lod-automation"
 #
 #   Copyright 2012 Timothy Lebo
 #
@@ -876,7 +876,7 @@ export CSV2RDF4LOD_PUBLISH_DATAHUB_METADATA="true"
 # (done in bin/secondary/cr-linksets.sh)
 #
 export CSV2RDF4LOD_PUBLISH_DATAHUB_METADATA_OUR_BUBBLE_ID="twc-logd" 
-export CSV2RDF4LOD_PUBLISH_DATAHUB_METADATA_OUR_BUBBLE_ID="" 
+export CSV2RDF4LOD_PUBLISH_DATAHUB_METADATA_OUR_BUBBLE_ID="melagrid"
 
 #
 # Customize: Notify Ping The Semantic Web about all published datasets.
@@ -890,7 +890,7 @@ export CSV2RDF4LOD_PUBLISH_DATAHUB_METADATA_OUR_BUBBLE_ID=""
 # (done in bin/aggregate-source-rdf.sh)
 #
 export CSV2RDF4LOD_PUBLISH_ANNOUNCE_TO_SINDICE="true" 
-export CSV2RDF4LOD_PUBLISH_ANNOUNCE_TO_SINDICE="false" 
+export CSV2RDF4LOD_PUBLISH_ANNOUNCE_TO_SINDICE="true"
 
 #
 # Customize: Notify Sindice about all published datasets.
