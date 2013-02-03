@@ -6,13 +6,8 @@
 # These shell environment variables apply to a particular machine.
 # By their nature, they are often directory paths for were things are installed.
 
-#export CSV2RDF4LOD_CONVERT_MACHINE_URI="http://tw.rpi.edu/web/inside/machine/aquarius#healthdata"
+export CSV2RDF4LOD_CONVERT_MACHINE_URI="http://tw.rpi.edu/web/inside/machine/aquarius#melagrid"
 #export CSV2RDF4LOD_HOME="/opt/csv2rdf4lod-automation"
 #export CSV2RDF4LOD_CONVERT_DATA_ROOT="/srv/twc-healthdata/data/source"
 #export CSV2RDF4LOD_PUBLISH_VARWWW_ROOT="/var/www"
 #export CSV2RDF4LOD_PUBLISH_LOD_MATERIALIZATION_WWW_ROOT="$CSV2RDF4LOD_PUBLISH_VARWWW_ROOT"
-#export CSV2RDF4LOD_PUBLISH_ANNOUNCE_TO_SINDICE="true"
-#export CSV2RDF4LOD_PUBLISH_ANNOUNCE_TO_PTSW="false"
-
-#source /srv/twc-healthdata/config/triple-store/virtuoso/csv2rdf4lod-source-me-for-virtuoso-credentials.sh
-
