@@ -5,3 +5,4 @@
 
 source /home/lebot/prizms/melagrid/data/source/csv2rdf4lod-source-me-for-melagrid.sh
 source /home/lebot/prizms/melagrid/data/source/csv2rdf4lod-source-me-credentials.sh
+export CSV2RDF4LOD_CONVERT_DATA_ROOT="/home/melagrid/prizms/data/source"
