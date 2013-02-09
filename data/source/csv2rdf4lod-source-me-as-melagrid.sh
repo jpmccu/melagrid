@@ -9,3 +9,5 @@ export CSV2RDF4LOD_CONVERT_DATA_ROOT="/home/melagrid/prizms/data/source"
 export PATH=$PATH`/home/melagrid/opt/prizms/bin/install/paths.sh`
 export CLASSPATH=$CLASSPATH`/home/melagrid/opt/prizms/bin/install/classpaths.sh`
 export JENAROOT=/home/melagrid/opt/apache-jena-2.7.4
+export CSV2RDF4LOD_PUBLISH_VARWWW_DUMP_FILES="true"
+export CSV2RDF4LOD_PUBLISH_VARWWW_ROOT="/var/www"
