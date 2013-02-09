@@ -4,6 +4,8 @@
 #3>    prov:specializationOf <https://github.com/timrdf/csv2rdf4lod-automation/blob/master/bin/cr-cron.sh> .
 #3>    prov:wasDerivedFrom   <https://raw.github.com/jimmccusker/twc-healthdata/master/data/source/healthdata-tw-rpi-edu/cr-cron/version/cron.sh> .
 
+date > `dirname $0`/bootstrap-error.txt
+
 if [ "$1" == "--help" ]; then
    # Determine the absolute path to this script.
    D=`dirname "$0"`
@@ -27,11 +29,7 @@ fi
 pushd `dirname $0` &> /dev/null
 
    # Boostrap ourselves with environment variables and paths.
-   source ../../../csv2rdf4lod-source-me.sh
    source ../../../csv2rdf4lod-source-me-as-`whoami`.sh
-   source ../../../csv2rdf4lod-source-me-when-ckaning.sh
-   export CLASSPATH=$CLASSPATH`$CSV2RDF4LOD_HOME/bin/util/cr-situate-classpaths.sh`
-   export PATH=$PATH`$CSV2RDF4LOD_HOME/bin/util/cr-situate-paths.sh`
 
    see='https://github.com/timrdf/csv2rdf4lod-automation/wiki/CSV2RDF4LOD-not-set'
    if [[ "${#CSV2RDF4LOD_HOME}" -eq 0 ]]; then
