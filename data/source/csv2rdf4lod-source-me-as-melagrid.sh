@@ -8,3 +8,4 @@ source /home/lebot/prizms/melagrid/data/source/csv2rdf4lod-source-me-credentials
 export CSV2RDF4LOD_CONVERT_DATA_ROOT="/home/melagrid/prizms/data/source"
 export PATH=$PATH`/home/melagrid/opt/prizms/bin/install/paths.sh`
 export CLASSPATH=$CLASSPATH`/home/melagrid/opt/prizms/bin/install/classpaths.sh`
+export JENAROOT=/home/lebot/opt/apache-jena-2.7.4
