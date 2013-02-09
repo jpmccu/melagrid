@@ -830,7 +830,7 @@ export CSV2RDF4LOD_PUBLISH_VIRTUOSO_SCRIPT_PATH=""
 # (done in pvload.sh)
 #
 export CSV2RDF4LOD_PUBLISH_VIRTUOSO_SPARQL_ENDPOINT="http://logd.tw.rpi.edu/sparql"
-export CSV2RDF4LOD_PUBLISH_VIRTUOSO_SPARQL_ENDPOINT=""
+export CSV2RDF4LOD_PUBLISH_VIRTUOSO_SPARQL_ENDPOINT="http://lod.melagrid.org/sparql"
 
 
 #
