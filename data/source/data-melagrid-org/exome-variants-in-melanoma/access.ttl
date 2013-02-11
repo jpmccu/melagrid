@@ -11,20 +11,20 @@
    a void:Dataset, dcat:Dataset;
    conversion:source_identifier  "data-melagrid-org";
    conversion:dataset_identifier "exome-variants-in-melanoma";
-   prov:wasDerivedFrom </storage/f/2012-07-06T230905/exome_aa_variants_final.xls>;
+   prov:wasDerivedFrom <http:///storage/f/2012-07-06T230905/exome_aa_variants_final.xls>;
 .
 
-:as_a_xls_d11d354ebcbc6d731df3a79062eba14e
+:as_a_xls_010c72de1447d3fb4bd68a1a858c6b86
    a dcat:Distribution;
-   dcat:accessURL </storage/f/2012-07-06T230905/exome_aa_variants_final.xls>;
+   dcat:accessURL <http:///storage/f/2012-07-06T230905/exome_aa_variants_final.xls>;
    dcterms:format [ rdfs:label "xls" ];
 .
 
-</storage/f/2012-07-06T230905/exome_aa_variants_final.xls> :format [ rdfs:label "xls" ] .
+<http:///storage/f/2012-07-06T230905/exome_aa_variants_final.xls> :format [ rdfs:label "xls" ] .
 
 <http://data.melagrid.org/dataset/exome-variants-in-melanoma>
    a dcat:Dataset, datafaqs:CKANDataset;
-   dcat:distribution :as_a_xls_d11d354ebcbc6d731df3a79062eba14e;
+   dcat:distribution :as_a_xls_010c72de1447d3fb4bd68a1a858c6b86;
    prov:wasAttributedTo <http://data.melagrid.org>;
 .
 

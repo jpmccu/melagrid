@@ -1,0 +1,42 @@
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix conversion: <http://purl.org/twc/vocab/conversion/> .
+@prefix dcat:       <http://www.w3.org/ns/dcat#> .
+@prefix void:       <http://rdfs.org/ns/void#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix datafaqs:   <http://purl.org/twc/vocab/datafaqs#> .
+@prefix :           <http://lod.melagrid.org/id/> .
+
+<http://lod.melagrid.org/source/data-melagrid-org/dataset/e-geod-15281>
+   a void:Dataset, dcat:Dataset;
+   conversion:source_identifier  "data-melagrid-org";
+   conversion:dataset_identifier "e-geod-15281";
+   prov:wasDerivedFrom <http://www.ebi.ac.uk/arrayexpress/files/E-GEOD-15281/E-GEOD-15281.eSet.r>;
+.
+
+:as_a_r-object_470d8354f89cbbcf0d1b9b9f8f2069e1
+   a dcat:Distribution;
+   dcat:accessURL <http://www.ebi.ac.uk/arrayexpress/files/E-GEOD-15281/E-GEOD-15281.eSet.r>;
+   dcterms:format [ rdfs:label "r-object" ];
+.
+
+<http://www.ebi.ac.uk/arrayexpress/files/E-GEOD-15281/E-GEOD-15281.eSet.r> :format [ rdfs:label "r-object" ] .
+
+<http://data.melagrid.org/dataset/e-geod-15281>
+   a dcat:Dataset, datafaqs:CKANDataset;
+   dcat:distribution :as_a_r-object_470d8354f89cbbcf0d1b9b9f8f2069e1;
+   prov:wasAttributedTo <http://data.melagrid.org>;
+.
+
+#3> <> prov:wasGeneratedBy [ 
+#3>    a prov:Activity; 
+#3>    prov:qualifiedAssociation [ 
+#3>       a prov:Association;
+#3>       prov:hadPlan <https://github.com/timrdf/csv2rdf4lod-automation/blob/master/bin/cr-create-dataset-dirs-from-ckan.py>;
+#3>    ];
+#3>    rdfs:seeAlso <https://github.com/jimmccusker/twc-healthdata/wiki/Accessing-CKAN-listings>;
+#3> ] .
+#3> <https://github.com/timrdf/csv2rdf4lod-automation/blob/master/bin/cr-create-dataset-dirs-from-ckan.py>
+#3>    a prov:Plan;
+#3>    dcterms:title "cr-create-dataset-dirs-from-ckan.py" ;
+#3> .
