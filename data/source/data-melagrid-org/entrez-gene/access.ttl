@@ -11,20 +11,20 @@
    a void:Dataset, dcat:Dataset;
    conversion:source_identifier  "data-melagrid-org";
    conversion:dataset_identifier "entrez-gene";
-   prov:wasDerivedFrom <http:///storage/f/2012-06-29T152211/gene_info.csv>;
+   prov:wasDerivedFrom <http://ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz>;
 .
 
-:as_a_csv_a6ef21060ffeab82d817ce6bef767fe3
+:as_a_tsv_91af4b28f0342123fafc59c627b29865
    a dcat:Distribution;
-   dcat:accessURL <http:///storage/f/2012-06-29T152211/gene_info.csv>;
-   dcterms:format [ rdfs:label "csv" ];
+   dcat:accessURL <http://ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz>;
+   dcterms:format [ rdfs:label "tsv" ];
 .
 
-<http:///storage/f/2012-06-29T152211/gene_info.csv> :format [ rdfs:label "csv" ] .
+<http://ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz> :format [ rdfs:label "tsv" ] .
 
 <http://data.melagrid.org/dataset/entrez-gene>
    a dcat:Dataset, datafaqs:CKANDataset;
-   dcat:distribution :as_a_csv_a6ef21060ffeab82d817ce6bef767fe3;
+   dcat:distribution :as_a_tsv_91af4b28f0342123fafc59c627b29865;
    prov:wasAttributedTo <http://data.melagrid.org>;
 .
 
