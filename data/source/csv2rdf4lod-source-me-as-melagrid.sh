@@ -12,3 +12,5 @@ export CLASSPATH=$CLASSPATH`/home/melagrid/opt/prizms/bin/install/classpaths.sh`
 export JENAROOT=/home/melagrid/opt/apache-jena-2.7.4
 export CSV2RDF4LOD_HOME="/home/melagrid/opt/prizms/repos/csv2rdf4lod-automation"
 export CSV2RDF4LOD_CONVERT_DATA_ROOT="/home/melagrid/prizms/melagrid/data/source"
+export CSV2RDF4LOD_PUBLISH_VIRTUOSO="true"
+export CSV2RDF4LOD_PUBLISH_SUBSET_SAMPLES="true"
