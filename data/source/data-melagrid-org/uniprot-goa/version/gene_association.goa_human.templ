@@ -1,0 +1,93 @@
+header = '''DB
+DB_Object_ID
+DB_Object_Symbol
+Qualifier
+GO_ID
+DB_Reference
+Evidence_Code
+With
+Aspect
+DB_Object_Name
+DB_Object_Synonym
+DB_Object_Type
+Taxon
+Date
+Assigned_By
+Annotation_Extension
+Gene_Product_Form_ID'''.split('\n')
+
+skip_rows = 9
+#process_rows = 1000
+delimiter="\t"
+
+def preprocess(x):
+    if 'NOT' in x['Qualifier']: return None
+    x['DB'] = x['DB'].replace('UniProtKB','uniprot')
+    dbref = x['DB_Reference'].split(":")
+    dbref[0] = dbref[0].lower().replace("_","")
+    x['DB_Reference'] = ":".join(dbref)
+    if "doi:" in x['DB_Reference']:
+        x['DB_Reference'] = '<http://dx.doi.org/'+x['DB_Reference']+'>'
+    return x
+
+preamble  = '''
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix nanopub: <http://www.nanopub.org/nschema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://lod.melagrid.org/source/data-melagrid-org/dataset/uniprot-goa/> .
+@prefix vocab: <http://lod.melagrid.org/source/data-melagrid-org/dataset/uniprot-goa/vocab/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix MI: <http://purl.obolibrary.org/obo/MI_> .
+@prefix GO: <http://purl.org/obo/owl/GO#GO_> .
+@prefix doi: <http://dx.doi.org/>.
+@prefix goref: <http://www.geneontology.org/cgi-bin/references.cgi#GO_REF:>.
+@prefix pmid: <http://bio2rdf.org/pubmed:>.
+@prefix reactome: <http://purl.org/twc/health/reactome:>.
+
+'''
+body = '''
+ 
+{
+  :NanoPub_${linenum} a nanopub:Nanopublication ;
+    nanopub:hasAssertion :NanoPub_${linenum}_Assertion ;
+    nanopub:hasProvenance :NanoPub_${linenum}_Provenance .
+ 
+  :NanoPub_${linenum}_Provenance nanopub:hasAttribution :NanoPub_${linenum}_Attribution ;
+    nanopub:hasSupporting :NanoPub_${linenum}_Supporting .
+ 
+  :NanoPub_${linenum}_Assertion a nanopub:Assertion .
+  :NanoPub_${linenum}_Provenance a nanopub:Provenance .
+  :NanoPub_${linenum}_Attribution a nanopub:Attribution .
+  :NanoPub_${linenum}_Supporting a nanopub:Supporting .
+}
+:NanoPub_${linenum}_Assertion {
+{% if Aspect == "P" %}\
+  ${GO_ID} rdfs:subClassOf GO:0008150;
+    sio:has-participant <http://bio2rdf.org/${DB}:${DB_Object_ID}>.
+{% end %}\
+{% if Aspect == "F" %}\
+  ${GO_ID} sio:has-agent <http://bio2rdf.org/${DB}:${DB_Object_ID}>.
+  ${GO_ID} rdfs:subClassOf GO:0003674.
+{% end %}\
+{% if Aspect == "C" %}\
+  <http://bio2rdf.org/${DB}_${DB_Object_ID}> sio:is-located-in ${GO_ID}.
+  ${GO_ID} rdfs:subClassOf GO:0005575.
+{% end %}\
+}
+:NanoPub_${linenum}_Attribution {
+  :NanoPub_${linenum}_Assertion prov:wasQuotedFrom <http://identifiers.org/${DB}/>;
+    prov:hadPrimarySource ${DB_Reference};
+.
+}
+:NanoPub_${linenum}_Supporting {
+  :NanoPub_${linenum}_Assertion  
+    prov:wasDerivedFrom [
+      a prov:Entity, sio:information-content-entity, vocab:${Evidence_Code};
+    ].
+}
+'''
+
+footer = '''
+'''

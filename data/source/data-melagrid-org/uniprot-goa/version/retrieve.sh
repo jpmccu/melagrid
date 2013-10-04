@@ -16,7 +16,6 @@
 #3> .
 
 $CSV2RDF4LOD_HOME/bin/cr-create-versioned-dataset-dir.sh cr:auto                                               \
-                                                        'http://ftp.ebi.ac.uk/pub/databases/GO/goa/HUMAN/gene_association.goa_human.gz' #\
-#                                                       --comment-character '#'                                 \
-#                                                       --header-line        0                                  \
+                                                        'http://ftp.ebi.ac.uk/pub/databases/GO/goa/HUMAN/gene_association.goa_human.gz' \
+                                                       --header-line        0                                  \
                                                        --delimiter         '\t'

@@ -1,0 +1,221 @@
+header = '''uidA
+uidB
+altA
+altB
+aliasA
+aliasB
+method
+author
+pmids
+taxa
+taxb
+interactionType
+sourcedb
+interactionIdentifier
+confidence
+expansion
+biological_role_A
+biological_role_B
+experimental_role_A
+experimental_role_B
+interactor_type_A
+interactor_type_B
+xrefs_A
+xrefs_B
+xrefs_Interaction
+Annotations_A
+Annotations_B
+Annotations_Interaction
+Host_organism_taxid
+parameters_Interaction
+Creation_date
+Update_date
+Checksum_A
+Checksum_B
+Checksum_Interaction
+Negative
+OriginalReferenceA
+OriginalReferenceB
+FinalReferenceA
+FinalReferenceB
+MappingScoreA
+MappingScoreB
+irogida
+irogidb
+irigid
+crogida
+crogidcrigid
+icrogida
+icrogidb
+icrigid
+imex_id
+edgetype
+numParticipants
+'''.split('\n')
+skip_rows = 1
+#process_rows = 100
+delimiter="\t"
+
+def preprocess(x):
+    x['uidA'] = x['uidA'].replace('uniprotkb:','uniprot:')
+    x['uidB'] = x['uidB'].replace('uniprotkb:','uniprot:')
+    if x['interactionType'] == '-':
+        x['interaction'] = 'MI:0190'
+    else:
+        x['interaction'] = x['interactionType'].split("(")[0]
+    if x['method'] == '-':
+        x['method'] = 'MI:0001'
+    if len(x['pmids']) == 0:
+        x['pmids'] = []
+    else:
+        x['pmids'] = x['pmids'].split("|")
+    #print x['pmids']
+    x['sourcedb'] = x['sourcedb'].split("(")[0]
+    x['method'] = x['method'].split("(")[0]
+    x['method'] = x['method'].split(" ")[0]
+    x['method'] = x['method'].replace(",","")
+    x['interactionIdentifier'] = x['interactionIdentifier'].replace("|","/").replace(":","/")
+    #if x['Negative'] != 'FALSE': return None
+    x.update(dict([tuple(v.split(":")[:2])
+                   for v in x['confidence'].split("|")
+                   if ":" in v]))
+    #print x.keys()
+    #print x['edgetype']
+    return x
+
+preamble  = '''
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix nanopub: <http://www.nanopub.org/nschema#> .
+@prefix opm: <http://purl.org/net/opmv/ns#> .
+@prefix pav: <http://swan.mindinformatics.org/ontologies/1.2/pav/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://lod.melagrid.org/source/data-melagrid-org/dataset/irefindex/> .
+@prefix vocab: <http://lod.melagrid.org/source/data-melagrid-org/dataset/irefindex/vocab/> .
+@prefix MI: <http://purl.obolibrary.org/obo/MI_> .
+
+<http://lod.melagrid.org/source/data-melagrid-org/dataset/irefindex/vocab> {
+MI:0190 rdfs:label "interaction".
+MI:0191 rdfs:label "aggregation".
+MI:0192 rdfs:label "acetylation reaction".
+MI:0193 rdfs:label "amidation reaction".
+MI:0194 rdfs:label "cleavage reaction".
+MI:0195 rdfs:label "covalent binding".
+MI:0197 rdfs:label "deacetylation reaction".
+MI:0199 rdfs:label "deformylation reaction".
+MI:0203 rdfs:label "dephosphorylation reaction".
+MI:0204 rdfs:label "deubiquitination reaction".
+MI:0208 rdfs:label "genetic interaction".
+MI:0210 rdfs:label "hydroxylation reaction".
+MI:0213 rdfs:label "methylation reaction".
+MI:0216 rdfs:label "palmitoylation reaction".
+MI:0217 rdfs:label "phosphorylation reaction".
+MI:0218 rdfs:label "physical interaction".
+MI:0220 rdfs:label "ubiquitination reaction".
+MI:0401 rdfs:label "biochemical".
+MI:0403 rdfs:label "colocalization".
+MI:0407 rdfs:label "direct interaction".
+MI:0408 rdfs:label "disulfide bond".
+MI:0414 rdfs:label "enzymatic reaction".
+MI:0556 rdfs:label "transglutamination reaction".
+MI:0557 rdfs:label "adp ribosylation reaction".
+MI:0559 rdfs:label "glycosylation reaction".
+MI:0566 rdfs:label "sumoylation reaction".
+MI:0567 rdfs:label "neddylation reaction".
+MI:0569 rdfs:label "deneddylation reaction".
+MI:0570 rdfs:label "protein cleavage".
+MI:0701 rdfs:label "dna strand elongation".
+MI:0844 rdfs:label "phosphotransfer reaction".
+MI:0871 rdfs:label "demethylation reaction".
+MI:0883 rdfs:label "gtpase reaction".
+MI:0902 rdfs:label "rna cleavage".
+MI:0914 rdfs:label "association".
+MI:0915 rdfs:label "physical association".
+MI:0945 rdfs:label "oxidoreductase activity electron transfer reaction".
+MI:1126 rdfs:label "self interaction".
+MI:1127 rdfs:label "putative self interaction".
+
+vocab:lowest-pmid-reuse rdfs:subClassOf sio:attribute;
+  rdfs:label "lowest PMID re-use".
+vocab:highest-pmid-reuse rdfs:subClassOf sio:attribute;
+  rdfs:label "highest PMID re-use".
+vocab:pmid-count rdfs:subClassOf sio:attribute;
+  rdfs:label "number of PMIDs".
+}
+'''
+body = '''
+ 
+{
+  :NanoPub_${linenum} a nanopub:Nanopublication ;
+    nanopub:hasAssertion :NanoPub_${linenum}_Assertion ;
+    nanopub:hasProvenance :NanoPub_${linenum}_Provenance .
+ 
+  :NanoPub_${linenum}_Provenance nanopub:hasAttribution :NanoPub_${linenum}_Attribution ;
+    nanopub:hasSupporting :NanoPub_${linenum}_Supporting .
+ 
+  :NanoPub_${linenum}_Assertion a nanopub:Assertion .
+  :NanoPub_${linenum}_Provenance a nanopub:Provenance .
+  :NanoPub_${linenum}_Attribution a nanopub:Attribution .
+  :NanoPub_${linenum}_Supporting a nanopub:Supporting .
+}
+:NanoPub_${linenum}_Assertion {
+{% def complex() %}
+  <http://lod.melagrid.org/source/data-melagrid-org/dataset/irefindex/complex/${uidA}> a sio:protein-complex;
+    sio:has-component-part <http://bio2rdf.org/${uidB}>.
+{% end %}\
+{% def binary() %}
+  <http://lod.melagrid.org/source/data-melagrid-org/dataset/irefindex/interaction/${interactionIdentifier}> a ${interaction};
+    sio:has-participant <http://bio2rdf.org/${uidA}>;
+    sio:has-target <http://bio2rdf.org/${uidB}>.
+{% end %}\
+{% if edgetype == "C" or expansion == "bipartite" %}\
+${complex()}
+{% end %}\
+{% if not ( edgetype == "C" or expansion == "bipartite") %}\
+{% if edgetype == "X" or edgetype == "-" %}\
+${binary()}
+{% end %}\
+{% end %}\
+{% if edgetype == "Y" %}\
+  <http://lod.melagrid.org/source/data-melagrid-org/dataset/irefindex/polymer/${interactionIdentifier}> a sio:polymer;
+    sio:has-component-part <http://bio2rdf.org/${uidA}>;
+    sio:has-component-part <http://bio2rdf.org/${uidB}>.
+{% end %}\
+}
+:NanoPub_${linenum}_Attribution {
+  :NanoPub_${linenum}_Assertion prov:wasQuotedFrom ${sourcedb};
+{% for pmid in pmids %}\
+    prov:hadPrimarySource  <http://bio2rdf.org/${pmid}>;
+{% end %}\
+.
+}
+:NanoPub_${linenum}_Supporting {
+  :NanoPub_${linenum}_Assertion  
+    prov:wasGeneratedBy :NanoPub_${linenum}_Assertion_Activity.
+    :NanoPub_${linenum}_Assertion_Activity a prov:Activity, ${method}.
+}
+'''
+extra = '''
+{% if defined("lpr") %}\
+    sio:has-attribute [
+      a vocab:lowest-pmid-reuse;
+      sio:has-value ${lpr} ;
+    ];
+{% end %}\
+{% if defined("hpr") %}\
+    sio:has-attribute [
+      a vocab:highest-pmid-reuse;
+      sio:has-value ${hpr} ;
+    ];
+{% end %}\
+{% if defined("np") %}\
+    sio:has-attribute [
+      a vocab:pmid-count;
+      sio:has-value ${np} ;
+    ];
+{% end %}\
+'''
+footer = '''
+'''
