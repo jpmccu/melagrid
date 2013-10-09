@@ -119,12 +119,10 @@
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:48706, mi:0626, mi:0626, sio:010435.
 </xsl:when>
 <xsl:when test="$action = 'ligand'">
-          <action>ligand</action>
 drugbank:<xsl:copy-of select="$drugid"/>a sio:ligand.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a sio:010432, chebi:52214.
 </xsl:when>
 <xsl:when test="$action = 'metabolizer'">
-          <action>metabolizer</action>
 drugbank:<xsl:copy-of select="$drugid"/> a vocab:metabolizer.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, cheb:25212, sio:000592.
 </xsl:when>
@@ -133,7 +131,6 @@ drugbank:<xsl:copy-of select="$drugid"/> a vocab:effector, vocab:enzyme_regulato
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a go:0030234, chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'multitarget'">
-          <action>multitarget</action>
 </xsl:when>
 <xsl:when test="$action = 'negative modulator'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor, vocab:effector.
@@ -156,13 +153,11 @@ drugbank:<xsl:copy-of select="$drugid"/> a vocab:effector, vocab:enzyme_regulato
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'potentiator'">
-          <action>potentiator</action>
 drugbank:<xsl:copy-of select="$drugid"/> a sio:stimulator.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0624, chebi:50847.
 
 </xsl:when>
 <xsl:when test="$action = 'product of'">
-          <action>product of</action>
 drugbank:<xsl:copy-of select="$drugid"/> a sio:product of , vocab:metabolite.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, cheb:25212, sio:000592.
 </xsl:when>
@@ -171,7 +166,6 @@ drugbank:<xsl:copy-of select="$drugid"/> a sio:product of , vocab:metabolite.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, sio:010435, go:0030547.
 </xsl:when>
 <xsl:when test="$action = 'stimulator'">
-          <action>stimulator</action>
 drugbank:<xsl:copy-of select="$drugid"/> a sio:activator
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0624, sio:010434. 
 </xsl:when>
