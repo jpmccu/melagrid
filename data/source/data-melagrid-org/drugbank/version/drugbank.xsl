@@ -56,7 +56,7 @@
 
 </xsl:when>
 <xsl:when test="$action = 'allosteric modulator'">
-    drugbank:<xsl:copy-of select="$drugid"/> a vocab:allosteric-modulator vocab:effector.
+    drugbank:<xsl:copy-of select="$drugid"/> a vocab:allosteric-modulator, vocab:effector.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'antibody'">
