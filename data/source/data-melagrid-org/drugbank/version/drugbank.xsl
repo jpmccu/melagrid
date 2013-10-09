@@ -125,7 +125,7 @@ drugbank:<xsl:copy-of select="$drugid"/>a sio:ligand.
 </xsl:when>
 <xsl:when test="$action = 'metabolizer'">
           <action>metabolizer</action>
-drugbank:<xsl:copy-of select="$drugid"/> vocab: metabolites
+drugbank:<xsl:copy-of select="$drugid"/> vocab:metabolites.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, cheb:25212, sio:000592.
 </xsl:when>
 <xsl:when test="$action = 'modulator'">
@@ -144,7 +144,7 @@ drugbank:<xsl:copy-of select="$drugid"/> a vocab:effector, vocab:enzyme_regulato
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623.
 </xsl:when>
 <xsl:when test="$action = 'partial agonist'">
-    drugbank:<xsl:copy-of select="$drugid"/> a sio:activator, vocab: stimulator
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:activator, vocab:stimulator.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0840, sio:010434, chebi:48705, go:0048018.
 </xsl:when>
 <xsl:when test="$action = 'partial antagonist'">
