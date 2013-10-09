@@ -61,7 +61,7 @@
 </xsl:when>
 <xsl:when test="$action = 'antibody'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:antibody, vocab:antigen binder.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0190, sio:010465, go:0003823..
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0190, sio:010465, go:0003823.
 </xsl:when>
 <xsl:when test="$action = 'chaperone'">
     drugbank:<xsl:copy-of select="$drugid"/> a vocab:chaperone.
