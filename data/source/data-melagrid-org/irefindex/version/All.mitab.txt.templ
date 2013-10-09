@@ -53,7 +53,7 @@ edgetype
 numParticipants
 '''.split('\n')
 skip_rows = 1
-#process_rows = 100
+process_rows = 1000
 delimiter="\t"
 
 def preprocess(x):
@@ -164,10 +164,10 @@ body = '''
 }
 :NanoPub_${linenum}_Assertion {
 {% if 'hgnc' in alias_a %}
-  <http://bio2rdf.org/${uidA}> rdfs:label alias_a['hgnc'].
+  <http://bio2rdf.org/${uidA}> rdfs:label "${alias_a['hgnc']}".
 {% end %}
 {% if 'hgnc' in alias_b %}
-  <http://bio2rdf.org/${uidB}> rdfs:label alias_b['hgnc'].
+  <http://bio2rdf.org/${uidB}> rdfs:label "${alias_b['hgnc']}.
 {% end %}
 {% def complex() %}
   <http://lod.melagrid.org/source/data-melagrid-org/dataset/irefindex/complex/${uidA}> a sio:protein-complex;
