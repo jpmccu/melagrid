@@ -166,11 +166,11 @@ drugbank:<xsl:copy-of select="$drugid"/> a sio:product of , vocab:metabolite.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, sio:010435, go:0030547.
 </xsl:when>
 <xsl:when test="$action = 'stimulator'">
-drugbank:<xsl:copy-of select="$drugid"/> a sio:activator
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:activator.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0624, sio:010434. 
 </xsl:when>
 <xsl:when test="$action = 'substrate'">
-drugbank:<xsl:copy-of select="$drugid"/> a sio:substrate/>a vocab:enzyme target
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:substrate.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0502, sio:010362. 
 </xsl:when>
 <xsl:when test="$action = 'suppressor'">
