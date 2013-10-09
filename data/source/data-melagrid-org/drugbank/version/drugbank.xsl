@@ -87,8 +87,8 @@
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623.
 </xsl:when>
 <xsl:when test="$action = 'cross-linking/alkylation'">
-    drugbank:<xsl:copy-of select="$drugid"/> vocab:alkylating_agent_crosslinker, vocab:protein_alkylation, vocab:DNA_alkylation.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> mi:0911, go:0008213, go:0006305, chebi:22333.
+    drugbank:<xsl:copy-of select="$drugid"/> a vocab:alkylating_agent_crosslinker, vocab:protein_alkylation, vocab:DNA_alkylation.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0911, go:0008213, go:0006305, chebi:22333.
 </xsl:when>
 <xsl:when test="$action = 'inactivator'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor.
