@@ -119,7 +119,7 @@
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:48706, mi:0626, mi:0626, sio:010435.
 </xsl:when>
 <xsl:when test="$action = 'ligand'">
-drugbank:<xsl:copy-of select="$drugid"/>a sio:ligand.
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:ligand.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a sio:010432, chebi:52214.
 </xsl:when>
 <xsl:when test="$action = 'metabolizer'">
