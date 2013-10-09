@@ -111,8 +111,8 @@
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'intercalation'">
-    # drugbank:<xsl:copy-of select="$drugid"/> a sio:intercalator
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> chebi:24853.
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:intercalator.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a chebi:24853.
 </xsl:when>
 <xsl:when test="$action = 'inverse agonist'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor.
