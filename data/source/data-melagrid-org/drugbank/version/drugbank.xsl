@@ -76,7 +76,7 @@
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0194, go:0016787, go:0016829.
 </xsl:when>
 <xsl:when test="$action = 'cofactor'">
-    drugbank:<xsl:copy-of select="$drugid"/> a sio: cofactor
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:cofactor
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0682, go:0048037, chebi:23357.
 </xsl:when>
 <xsl:when test="$action = 'component of'">
@@ -174,7 +174,7 @@ drugbank:<xsl:copy-of select="$drugid"/> a sio:product of , vocab:metabolite.
 <xsl:when test="$action = 'stimulator'">
           <action>stimulator</action>
 drugbank:<xsl:copy-of select="$drugid"/> a sio:activator
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0624, sio: 010434. 
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0624, sio:010434. 
 </xsl:when>
 <xsl:when test="$action = 'substrate'">
 drugbank:<xsl:copy-of select="$drugid"/> a sio:substrate/>a vocab:enzyme target
