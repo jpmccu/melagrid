@@ -129,8 +129,7 @@ drugbank:<xsl:copy-of select="$drugid"/> vocab: metabolites
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, cheb:25212, sio:000592.
 </xsl:when>
 <xsl:when test="$action = 'modulator'">
-          <action>modulator</action>
-drugbank:<xsl:copy-of select="$drugid"/> vocab:effector, vocab:enzyme_regulator.
+drugbank:<xsl:copy-of select="$drugid"/> a vocab:effector, vocab:enzyme_regulator.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a go:0030234, chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'multitarget'">
