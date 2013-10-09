@@ -56,11 +56,11 @@
 
 </xsl:when>
 <xsl:when test="$action = 'allosteric modulator'">
-    drugbank:<xsl:copy-of select="$drugid"/> a vocab:allosteric-modulator, effector.
+    drugbank:<xsl:copy-of select="$drugid"/> a vocab:allosteric-modulator vocab:effector.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'antibody'">
-    drugbank:<xsl:copy-of select="$drugid"/> a sio:antibody, vocab:antigen binder.
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:antibody, vocab:antigen_binder.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0190, sio:010465, go:0003823.
 </xsl:when>
 <xsl:when test="$action = 'chaperone'">
@@ -95,8 +95,8 @@
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623.
 </xsl:when>
 <xsl:when test="$action = 'incorporation into and destabilization'">
-    drugbank:<xsl:copy-of select="$drugid"/> a sio:.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:.
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor, vocab:destabilizer.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, vocab:incorporation, vocab:destabilization.
 </xsl:when>
 <xsl:when test="$action = 'inducer'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:activator, vocab:agonist.
@@ -112,7 +112,7 @@
 </xsl:when>
 <xsl:when test="$action = 'intercalation'">
     # drugbank:<xsl:copy-of select="$drugid"/> a sio:intercalator
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> chebi:24853
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> chebi:24853.
 </xsl:when>
 <xsl:when test="$action = 'inverse agonist'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor.
@@ -120,7 +120,7 @@
 </xsl:when>
 <xsl:when test="$action = 'ligand'">
           <action>ligand</action>
-drugbank:<xsl:copy-of select="$drugid"/>a sio:ligand
+drugbank:<xsl:copy-of select="$drugid"/>a sio:ligand.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a sio:010432, chebi:52214.
 </xsl:when>
 <xsl:when test="$action = 'metabolizer'">
@@ -137,7 +137,7 @@ drugbank:<xsl:copy-of select="$drugid"/> vocab:effector, vocab:enzyme_regulator.
           <action>multitarget</action>
 </xsl:when>
 <xsl:when test="$action = 'negative modulator'">
-    drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor, vocab: effector
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor, vocab:effector.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'neutralizer'">
@@ -153,7 +153,7 @@ drugbank:<xsl:copy-of select="$drugid"/> vocab:effector, vocab:enzyme_regulator.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, sio:010435, mi:0626, chebi:48706.
 </xsl:when>
 <xsl:when test="$action = 'positive allosteric modulator'">
-    drugbank:<xsl:copy-of select="$drugid"/> a sio:activator, vocab:allosteric-modulator, effector.
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:activator, vocab:allosteric-modulator, vocab:effector.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'potentiator'">
