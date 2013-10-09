@@ -44,7 +44,7 @@
 </xsl:when>
 <xsl:when test="lower-case($action) = 'binder'">
     drugbank:<xsl:copy-of select="$drugid"/> a vocab:binder.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a GO:0005488
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a go:0005488
 </xsl:when>
 <xsl:when test="$action = 'activator' or $action = 'agonist'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:activator.
