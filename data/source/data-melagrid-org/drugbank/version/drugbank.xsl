@@ -238,6 +238,7 @@ drugbank:<xsl:copy-of select="$drugid"/> a sio:substrate/>a vocab:enzyme target
 @prefix : &lt;http://lod.melagrid.org/source/data-melagrid-org/dataset/drugbank/nanopub&gt; .
 @prefix mi: &lt;http://purl.obolibrary.org/obo/MI_&gt; .
 @prefix go: &lt;http://purl.org/obo/owl/GO#GO_&gt; .
+@prefix chebi: &lt;http://purl.obolibrary.org/obo/CHEBI_&gt; .
 
 &lt;http://lod.melagrid.org/source/data-melagrid-org/dataset/drugbank/vocab/&gt; {
 mi:0195 rdfs:label "covalent binding".
