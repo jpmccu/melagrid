@@ -69,7 +69,7 @@
 </xsl:when>
 <xsl:when test="$action = 'chelator'">
     drugbank:<xsl:copy-of select="$drugid"/> a vocab:chelator.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a &lt;http://purl.obolibrary.org/obo/CHEBI_38161&gt;.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a chebi:38161;.
 </xsl:when>
 <xsl:when test="$action = 'cleavage'">
     drugbank:<xsl:copy-of select="$drugid"/> a vocab:hydrolysis, hydrolyase activity, lyase activity.
@@ -124,7 +124,7 @@ drugbank:<xsl:copy-of select="$drugid"/>a sio:ligand.
 </xsl:when>
 <xsl:when test="$action = 'metabolizer'">
 drugbank:<xsl:copy-of select="$drugid"/> a vocab:metabolizer.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, cheb:25212, sio:000592.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, chebi:25212, sio:000592.
 </xsl:when>
 <xsl:when test="$action = 'modulator'">
 drugbank:<xsl:copy-of select="$drugid"/> a vocab:effector, vocab:enzyme_regulator.
@@ -159,7 +159,7 @@ drugbank:<xsl:copy-of select="$drugid"/> a sio:stimulator.
 </xsl:when>
 <xsl:when test="$action = 'product of'">
 drugbank:<xsl:copy-of select="$drugid"/> a sio:product of , vocab:metabolite.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, cheb:25212, sio:000592.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, chebi:25212, sio:000592.
 </xsl:when>
 <xsl:when test="$action = 'reducer'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor.
