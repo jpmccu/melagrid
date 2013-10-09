@@ -40,7 +40,7 @@
 <xsl:choose>
 <xsl:when test="lower-case($action) = 'antagonist' or lower-case($action) = 'inhibitor'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:48706, mi:0626, gro:antagonist, sio_010435.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:48706, mi:0626, mi:0626, sio:010435.
 </xsl:when>
 <xsl:when test="lower-case($action) = 'binder'">
     drugbank:<xsl:copy-of select="$drugid"/> a vocab:binder.
@@ -116,7 +116,7 @@
 </xsl:when>
 <xsl:when test="$action = 'inverse agonist'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:48706, mi:0626, gro:antagonist, sio_010435.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:48706, mi:0626, mi:0626, sio:010435.
 </xsl:when>
 <xsl:when test="$action = 'ligand'">
           <action>ligand</action>
@@ -150,7 +150,7 @@ drugbank:<xsl:copy-of select="$drugid"/> vocab:effector, vocab:enzyme_regulator.
 </xsl:when>
 <xsl:when test="$action = 'partial antagonist'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor.
-    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, sio:010435, gro:antagonist, chebi:48706.
+    :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, sio:010435, mi:0626, chebi:48706.
 </xsl:when>
 <xsl:when test="$action = 'positive allosteric modulator'">
     drugbank:<xsl:copy-of select="$drugid"/> a sio:activator, vocab:allosteric-modulator, effector.
