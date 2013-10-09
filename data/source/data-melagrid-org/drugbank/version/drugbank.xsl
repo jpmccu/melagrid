@@ -158,7 +158,7 @@ drugbank:<xsl:copy-of select="$drugid"/> a sio:stimulator.
 
 </xsl:when>
 <xsl:when test="$action = 'product of'">
-drugbank:<xsl:copy-of select="$drugid"/> a sio:product of , vocab:metabolite.
+drugbank:<xsl:copy-of select="$drugid"/> a sio:product-of vocab:metabolite.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:2048, chebi:25212, sio:000592.
 </xsl:when>
 <xsl:when test="$action = 'reducer'">
