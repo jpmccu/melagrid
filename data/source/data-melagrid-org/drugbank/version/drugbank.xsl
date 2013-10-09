@@ -72,7 +72,7 @@
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a chebi:38161;.
 </xsl:when>
 <xsl:when test="$action = 'cleavage'">
-    drugbank:<xsl:copy-of select="$drugid"/> a vocab:hydrolysis, hydrolyase activity, lyase activity.
+    drugbank:<xsl:copy-of select="$drugid"/> a vocab:hydrolysis.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0194, go:0016787, go:0016829.
 </xsl:when>
 <xsl:when test="$action = 'cofactor'">
