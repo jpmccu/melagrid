@@ -51,7 +51,7 @@
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0840, sio:010434, go:0048018, chebi:48705.
 </xsl:when>
 <xsl:when test="$action = 'adduct'">
-    drugbank:<xsl:copy-of select="$drugid"/> a vocab:adduct, complex properties.
+    drugbank:<xsl:copy-of select="$drugid"/> a vocab:adduct.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0629, go:0008144.
 
 </xsl:when>
