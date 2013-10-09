@@ -137,7 +137,7 @@ drugbank:<xsl:copy-of select="$drugid"/> a vocab:effector, vocab:enzyme_regulato
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623, chebi:35224.
 </xsl:when>
 <xsl:when test="$action = 'neutralizer'">
-    drugbank:<xsl:copy-of select="$drugid"/>.
+    drugbank:<xsl:copy-of select="$drugid"/> a sio:inhibitor.
     :interaction_<xsl:copy-of select="$drugid"/>_<xsl:copy-of select="$partnerid"/> a mi:0623.
 </xsl:when>
 <xsl:when test="$action = 'partial agonist'">
