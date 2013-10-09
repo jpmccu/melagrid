@@ -76,6 +76,8 @@ def preprocess(x):
     x['method'] = x['method'].replace(",","")
     x['interactionIdentifier'] = x['interactionIdentifier'].replace("|","/").replace(":","/")
     #if x['Negative'] != 'FALSE': return None
+    x['alias_a'] = dict([tuple(v.split(":")[:2]) for v in x['aliasA'].split('|')])
+    x['alias_b'] = dict([tuple(v.split(":")[:2]) for v in x['aliasB'].split('|')])
     x.update(dict([tuple(v.split(":")[:2])
                    for v in x['confidence'].split("|")
                    if ":" in v]))
@@ -161,6 +163,12 @@ body = '''
   :NanoPub_${linenum}_Supporting a nanopub:Supporting .
 }
 :NanoPub_${linenum}_Assertion {
+{% if 'hgnc' in alias_a %}
+  <http://bio2rdf.org/${uidA}> rdfs:label alias_a['hgnc'].
+{% end %}
+{% if 'hgnc' in alias_b %}
+  <http://bio2rdf.org/${uidB}> rdfs:label alias_b['hgnc'].
+{% end %}
 {% def complex() %}
   <http://lod.melagrid.org/source/data-melagrid-org/dataset/irefindex/complex/${uidA}> a sio:protein-complex;
     sio:has-component-part <http://bio2rdf.org/${uidB}>.
