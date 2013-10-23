@@ -51,12 +51,11 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
         $http({method:'GET',url:"/api/addToGraph?uris="+query})
             .success($scope.appendToGraph);
     }
-    $scope.graphView = 
     $scope.appendToGraph = function(result) {
         console.log(result);
         $scope.edges = $scope.edges.concat(result.edges);
         result.edges.forEach(function(row) {
-            if (!row.probability > 0.5) return;
+            if (!(row.probability > 0.9)) return;
             var source = $scope.getNode(row.participant);
             source.data.label = row.participantLabel;
             var target = $scope.getNode(row.target);
@@ -73,8 +72,17 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
         var elements = $scope.elements.nodes.concat($scope.elements.edges);
         console.log(elements);
         $('#results').cytoscape({
-            layout: "circle",
-            style: cytoscape.stylesheet()
+              layout: {
+                  name: 'breadthfirst',
+                  fit: false, // whether to fit the viewport to the graph
+                  ready: undefined, // callback on layoutready
+                  stop: undefined, // callback on layoutstop
+                  directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+                  padding: 30, // padding on fit
+                  circle: false, // put depths in concentric circles if true, put depths top down if false
+                  roots: undefined // the roots of the trees
+              },
+              style: cytoscape.stylesheet()
                 .selector('node')
                 .css({
                     'content': 'data(label)',
@@ -87,7 +95,7 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
                 .css({
                     'target-arrow-shape': 'triangle',
                     'opacity':0.5,
-                    'line-width':"data(likelihood)"
+                    'width':"data(likelihood)"
                 })
                 .selector(':selected')
                 .css({
@@ -95,6 +103,7 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
                     'line-color': 'black',
                     'target-arrow-color': 'black',
                     'source-arrow-color': 'black'
+                    'opacity':1,
                 })
                 .selector('.faded')
                 .css({
