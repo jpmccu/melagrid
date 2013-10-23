@@ -1,0 +1,9 @@
+TurboGears2 >= 2.2.2
+Genshi
+zope.sqlalchemy >= 0.4
+repoze.tm2 >= 1.0a5
+sqlalchemy<0.8b1
+sqlalchemy-migrate
+tw2.forms
+rdflib
+rdflib-jsonld

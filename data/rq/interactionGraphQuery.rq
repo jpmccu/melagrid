@@ -1,9 +1,9 @@
 
 PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
-prefix go: <http://purl.obolibrary.org/obo/GO_>
+prefix go: <http://purl.org/obo/owl/GO#GO_>
 
-SELECT ?participant ?participantLabel ?target ?targetLabel ?interactionType ?typeLabel ?probability { 
+SELECT distinct ?participant ?participantLabel ?target ?targetLabel ?interaction ?interactionType ?typeLabel ?probability { 
 
   graph ?assertion {
     ?interaction sio:has-participant ?participant.
@@ -15,7 +15,7 @@ SELECT ?participant ?participantLabel ?target ?targetLabel ?interactionType ?typ
     a sio:SIO_000765;
     sio:SIO_000300 ?probability;
   ].
-  go:0097191 sio:has-participant ?target.
+ <http://purl.org/obo/owl/GO#GO_0016049> sio:has-participant ?target.
   ?target rdfs:label ?targetLabel.
   ?participant rdfs:label ?participantLabel.
 } LIMIT 10000

@@ -1,2 +1,2 @@
 .refresh-prizms-installation
-.pyc
+*.pyc
