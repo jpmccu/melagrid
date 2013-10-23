@@ -73,38 +73,81 @@ PREFIX prov: <http://www.w3.org/ns/prov#>
 prefix go: <http://purl.org/obo/owl/GO#GO_>
 
 SELECT distinct ?participant ?participantLabel ?target ?targetLabel ?interaction ?interactionType ?typeLabel ?probability ?searchEntity ?searchTerm where {
-  let ( ?searchEntity :=
+  let ( 
+    ?searchEntity :=
+{% for s in search %}\
+    <${s}>
+{% end %}\
+  )
+  let ( 
+    ${position} :=
 {% for s in search %}\
     <${s}>
 {% end %}\
   )
   ?searchEntity rdfs:label ?searchTerm.
+  graph ?assertion {
+    ?interaction sio:has-participant ?participant.
+    ?interaction sio:has-target ?target.
+    ?interaction a ?interactionType.
+  }
+  OPTIONAL { ?interactionType rdfs:label ?typeLabel. }
+  OPTIONAL {
+    ?assertion sio:SIO_000008 [
+      a sio:SIO_000765;
+      sio:SIO_000300 ?probability;
+    ].
+  }
+  
+  ?target rdfs:label ?targetLabel.
+  ?participant rdfs:label ?participantLabel.
+} LIMIT 10000''')
 
-  ${searchRelation}
+processAppendQueryTemplate = NewTextTemplate('''
+PREFIX sio: <http://semanticscience.org/resource/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+prefix go: <http://purl.org/obo/owl/GO#GO_>
+
+SELECT distinct ?participant ?participantLabel ?target ?targetLabel ?interaction ?interactionType ?typeLabel ?probability ?searchEntity ?searchTerm where {
+  let ( 
+    ?searchEntity :=
+{% for s in search %}\
+    <${s}>
+{% end %}\
+  )
+  ?searchEntity rdfs:label ?searchTerm.
+  ?searchEntity sio:has-participant ?participant.
   
   graph ?assertion {
     ?interaction sio:has-participant ?participant.
     ?interaction sio:has-target ?target.
     ?interaction a ?interactionType.
   }
-  ?interactionType rdfs:label ?typeLabel.
-  ?assertion sio:SIO_000008 [
-    a sio:SIO_000765;
-    sio:SIO_000300 ?probability;
-  ].
-
+  OPTIONAL { ?interactionType rdfs:label ?typeLabel. }
+  OPTIONAL {
+    ?assertion sio:SIO_000008 [
+      a sio:SIO_000765;
+      sio:SIO_000300 ?probability;
+    ].
+  }
+  
   ?target rdfs:label ?targetLabel.
   ?participant rdfs:label ?participantLabel.
 } LIMIT 10000''')
 
 searchRelations = [
-    '''?searchEntity sio:has-participant ?target.''',
-    '''[] sio:has-participant ?participant; sio:has-target ?searchEntity.''',
-    '''[] sio:has-participant ?searchEntity; sio:has-target ?participant.''',
+    '''?target''',
+    '''?participant''',
+#    '''[] sio:has-participant ?target; sio:has-target ?searchEntity.''',
+#    '''[] sio:has-participant ?searchEntity; sio:has-target ?target.''',
     ]
 
 def mergeByInteraction(edges):
     def mergeInteractions(interactions):
+        for i in interactions:
+            if i['probability'] == None:
+                print i
+                i['probability'] = rdflib.Literal(0.5)
         result = interactions[0]
         result['probability'] = geomean([i['probability'].value for i in interactions])
         return result
@@ -130,15 +173,20 @@ def mergeByInteractionType(edges):
 
 def addToGraphFn(search):
     edges = []
-    for searchRelation in searchRelations:
-        q = appendQueryTemplate.generate(Context(search=search, searchRelation=searchRelation)).render()
+    queries = [processAppendQueryTemplate.generate(Context(search=search)).render()]+[
+        appendQueryTemplate.generate(Context(search=search, position=searchRelation)).render() 
+        for searchRelation in searchRelations]
+    for q in queries:
         print q
         resultSet = model.graph.query(q)
         variables = [x.replace("?","") for x in resultSet.vars]
         edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
         print len(edges)
+    print "initial:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
     edges = mergeByInteraction(edges)
+    print "merge 1:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
     edges = mergeByInteractionType(edges)
+    print "merge 2:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
     return edges
 
 addToGraphCache = LRU_Cache(addToGraphFn,maxsize=100)

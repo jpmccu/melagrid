@@ -55,7 +55,7 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
         console.log(result);
         $scope.edges = $scope.edges.concat(result.edges);
         result.edges.forEach(function(row) {
-            if (!(row.probability > 0.9)) return;
+            if (!(row.probability > 0.4)) return;
             var source = $scope.getNode(row.participant);
             source.data.label = row.participantLabel;
             var target = $scope.getNode(row.target);
@@ -77,9 +77,9 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
                   fit: false, // whether to fit the viewport to the graph
                   ready: undefined, // callback on layoutready
                   stop: undefined, // callback on layoutstop
-                  directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+                  directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
                   padding: 30, // padding on fit
-                  circle: false, // put depths in concentric circles if true, put depths top down if false
+                  circle: true, // put depths in concentric circles if true, put depths top down if false
                   roots: undefined // the roots of the trees
               },
               style: cytoscape.stylesheet()
@@ -95,14 +95,14 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
                 .css({
                     'target-arrow-shape': 'triangle',
                     'opacity':0.5,
-                    'width':"data(likelihood)"
+                    'width':"data(likelihood+0.1)"
                 })
                 .selector(':selected')
                 .css({
                     'background-color': 'black',
                     'line-color': 'black',
                     'target-arrow-color': 'black',
-                    'source-arrow-color': 'black'
+                    'source-arrow-color': 'black',
                     'opacity':1,
                 })
                 .selector('.faded')

@@ -58,14 +58,14 @@ class ResourceController(RestController):
         # }}'''.format(uri)
         result = rdflib.ConjunctiveGraph()
         quads = []
-        for g in model.graphs:
-            for query in queries:
-                try:
-                    resultSet = g.query(query)
-                    quads.extend(resultSet)
-                except Exception as e:
-                    print e
-                    print query
+        #for g in model.graphs:
+        for query in queries:
+            try:
+                resultSet = model.graph.query(query)
+                quads.extend(resultSet)
+            except Exception as e:
+                print e
+                print query
         for row in quads:
             s, p, o, g, sLabel, pLabel, oLabel, gLabel = row
             result.get_context(g).add((s, p, o))
