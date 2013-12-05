@@ -7,6 +7,7 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
     };
     $scope.nodeMap = {};
     $scope.edges = [];
+    $scope.edgeMap = {};
     $scope.resources = {};
     $scope.searchTerms = "";
     $scope.searchTermURIs = {};
@@ -23,6 +24,83 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
         }
         return node;
     }
+    $scope.layout = {
+        name: 'breadthfirst',
+        fit: false, // whether to fit the viewport to the graph
+        ready: undefined, // callback on layoutready
+        stop: undefined, // callback on layoutstop
+        directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
+        padding: 30, // padding on fit
+        circle: true, // put depths in concentric circles if true, put depths top down if false
+        roots: undefined // the roots of the trees
+    }
+
+    $('#results').cytoscape({
+        layout: $scope.layout,
+        style: cytoscape.stylesheet()
+            .selector('node')
+            .css({
+                'content': 'data(label)',
+                'text-valign': 'center',
+                'color': 'white',
+                'text-outline-width': 2,
+                'text-outline-color': '#888'
+            })
+            .selector('edge')
+            .css({
+                'target-arrow-shape': 'triangle',
+                'opacity':0.5,
+                'width':"data(likelihood+0.1)"
+            })
+            .selector(':selected')
+            .css({
+                'background-color': 'black',
+                'line-color': 'black',
+                'target-arrow-color': 'black',
+                'source-arrow-color': 'black',
+                'opacity':1,
+            })
+            .selector('.faded')
+            .css({
+                'opacity': 0.25,
+                'text-opacity': 0
+            }),
+        elements: [] ,
+        ready: function(){
+            $scope.cy = cy = this;
+            // giddy up...
+            console.log(cy.elements());
+            cy.elements().unselectify();
+            
+            cy.on('tap', 'node', function(e){
+                var node = e.cyTarget; 
+                var neighborhood = node.neighborhood().add(node);
+                
+                cy.elements().addClass('faded');
+                neighborhood.removeClass('faded');
+            });
+            
+            cy.on('tap', function(e){
+                if( e.cyTarget === cy ){
+                    cy.elements().removeClass('faded');
+                }
+            });
+            layoutOptions = {
+                name: 'breadthfirst',
+                fit: true, // whether to fit the viewport to the graph
+                ready: undefined, // callback on layoutready
+                stop: undefined, // callback on layoutstop
+                directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
+                padding: 30, // padding on fit
+                circle: false, // put depths in concentric circles if true, put depths top down if false
+                roots: undefined // the roots of the trees
+            };
+            
+            //cy.layout( layoutOptions );
+            console.log($scope.cy);
+        }
+    });
+
     $("#searchBox").typeahead({
         minLength: 3,
         items: 10,
@@ -54,97 +132,28 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
     $scope.appendToGraph = function(result) {
         console.log(result);
         $scope.edges = $scope.edges.concat(result.edges);
+        var elements = [];
         result.edges.forEach(function(row) {
             if (!(row.probability > 0.4)) return;
             var source = $scope.getNode(row.participant);
             source.data.label = row.participantLabel;
+            elements.push(source);
             var target = $scope.getNode(row.target);
             target.data.label = row.targetLabel;
+            elements.push(target);
             var edge = {
                 group: "edges",
                 data: $().extend({}, row, {
+                    id: row.interactions[0],
                     source:source.data.id,
                     target:target.data.id
                 })
             };
-            $scope.elements.edges.push(edge);
+            elements.push(edge);
         });
-        var elements = $scope.elements.nodes.concat($scope.elements.edges);
+        $scope.cy.add(elements);
+        $scope.cy.layout($scope.layout);
         console.log(elements);
-        $('#results').cytoscape({
-              layout: {
-                  name: 'breadthfirst',
-                  fit: false, // whether to fit the viewport to the graph
-                  ready: undefined, // callback on layoutready
-                  stop: undefined, // callback on layoutstop
-                  directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
-                  padding: 30, // padding on fit
-                  circle: true, // put depths in concentric circles if true, put depths top down if false
-                  roots: undefined // the roots of the trees
-              },
-              style: cytoscape.stylesheet()
-                .selector('node')
-                .css({
-                    'content': 'data(label)',
-                    'text-valign': 'center',
-                    'color': 'white',
-                    'text-outline-width': 2,
-                    'text-outline-color': '#888'
-                })
-                .selector('edge')
-                .css({
-                    'target-arrow-shape': 'triangle',
-                    'opacity':0.5,
-                    'width':"data(likelihood+0.1)"
-                })
-                .selector(':selected')
-                .css({
-                    'background-color': 'black',
-                    'line-color': 'black',
-                    'target-arrow-color': 'black',
-                    'source-arrow-color': 'black',
-                    'opacity':1,
-                })
-                .selector('.faded')
-                .css({
-                    'opacity': 0.25,
-                    'text-opacity': 0
-                }),
-            elements: elements ,
-            ready: function(){
-                $scope.cy = cy = this;
-                // giddy up...
-                console.log(cy.elements());
-                cy.elements().unselectify();
-    
-                cy.on('tap', 'node', function(e){
-                    var node = e.cyTarget; 
-                    var neighborhood = node.neighborhood().add(node);
-                    
-                    cy.elements().addClass('faded');
-                    neighborhood.removeClass('faded');
-                });
-                
-                cy.on('tap', function(e){
-                    if( e.cyTarget === cy ){
-                        cy.elements().removeClass('faded');
-                    }
-                });
-                layoutOptions = {
-                    name: 'breadthfirst',
-                    fit: true, // whether to fit the viewport to the graph
-                    ready: undefined, // callback on layoutready
-                    stop: undefined, // callback on layoutstop
-                    directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
-                    padding: 30, // padding on fit
-                    circle: false, // put depths in concentric circles if true, put depths top down if false
-                    roots: undefined // the roots of the trees
-                };
-                
-                //cy.layout( layoutOptions );
-                console.log($scope.cy);
-            }
-        });
         //$scope.updateDisplay();
     }
     $scope.result = $("#result");

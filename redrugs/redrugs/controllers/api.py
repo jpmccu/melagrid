@@ -194,7 +194,7 @@ addToGraphCache = LRU_Cache(addToGraphFn,maxsize=100)
 def typeaheadFn(search):
     resultSet = model.graph.query('''prefix bd: <http://www.bigdata.com/rdf/search#>
     select distinct ?o ?s where {{
-      ?o bd:search "{0}.*" .
+      ?o bd:search """{0}.*""" .
       ?s rdfs:label ?o.
       FILTER(isURI(?s))
     }}  limit 10'''.format(search))
