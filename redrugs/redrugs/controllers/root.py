@@ -103,6 +103,12 @@ class ReDrugSController(BaseController):
         return dict(params=kw, 
                     mount=self.mount_point)
 
+class ReDrugSControllerU2(BaseController):
+    @expose("redrugs.templates.redrugsU2")
+    def index(self, *args, **kw):
+        return dict(params=kw, 
+                    mount=self.mount_point)
+
 class RootController(BaseController):
     """
     The root controller for the redrugs application.

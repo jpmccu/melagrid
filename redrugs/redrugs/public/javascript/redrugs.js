@@ -51,6 +51,16 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
         $http({method:'GET',url:"/api/addToGraph?uris="+query})
             .success($scope.appendToGraph);
     }
+    $scope.addToGraphU2 = function(query) {
+        console.log(query);
+        query = query.split(",").map(function(d) {
+            return encodeURIComponent($scope.searchTermURIs[$.trim(d)])
+        }).join(",")
+        console.log(query);
+        $http({method:'GET',url:"/api/addToGraphU2?uris="+ query})
+            .success($scope.appendToGraph);
+    }
+
     $scope.appendToGraph = function(result) {
         console.log(result);
         $scope.edges = $scope.edges.concat(result.edges);

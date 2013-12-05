@@ -141,6 +141,16 @@ searchRelations = [
 #    '''[] sio:has-participant ?target; sio:has-target ?searchEntity.''',
 #    '''[] sio:has-participant ?searchEntity; sio:has-target ?target.''',
     ]
+searchRelationD = [
+    '''?participant''',
+#    '''[] sio:has-participant ?target; sio:has-target ?searchEntity.''',
+#    '''[] sio:has-participant ?searchEntity; sio:has-target ?target.''',
+    ]
+searchRelationU = [
+    '''?target''',
+#    '''[] sio:has-participant ?target; sio:has-target ?searchEntity.''',
+#    '''[] sio:has-participant ?searchEntity; sio:has-target ?target.''',
+    ]
 
 def mergeByInteraction(edges):
     def mergeInteractions(interactions):
@@ -191,6 +201,38 @@ def addToGraphFn(search):
 
 addToGraphCache = LRU_Cache(addToGraphFn,maxsize=100)
 
+def addToGraphFnU2(nodes):
+    edges = []
+    queriesL = []
+    for node in nodes:
+        search = (node,)
+        queries = ([
+            appendQueryTemplate.generate(Context(search=search, position=searchRelation)).render() 
+            for searchRelation in searchRelationU])
+        for qx in queries:
+          queriesL.append(qx)
+          
+    queriesT = tuple(queriesL)
+
+    for q in queriesT:
+        print "\nQuery:"
+        print q
+        resultSet = model.graph.query(q)
+        variables = [x.replace("?","") for x in resultSet.vars]
+        edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
+        print len(edges)
+    print "initial:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
+    edges = mergeByInteraction(edges)
+    print "merge 1:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
+    edges = mergeByInteractionType(edges)
+    print "merge 2:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
+    print "exiting addToGraphFnU2 with number of edges: "
+    print len(edges)
+    return edges
+
+addToGraphCacheU2 = LRU_Cache(addToGraphFnU2,maxsize=100)
+
+
 def typeaheadFn(search):
     resultSet = model.graph.query('''prefix bd: <http://www.bigdata.com/rdf/search#>
     select distinct ?o ?s where {{
@@ -214,6 +256,25 @@ class ApiController(BaseController):
         print len(edges)
         return dict(edges=edges)
     
+    
+    @expose('json')
+    def addToGraphU2(self,*args, **kw):
+        search = tuple(kw['uris'].split(","))
+        print search
+        edges = addToGraphCacheU2(search)
+        print "addToGraphU2 step 1: total edges"
+        print len(edges)
+        search2 = []
+        for edge in edges:
+          print edge
+          search2.append(edge['participant'])
+        nodes = tuple(search2)
+        edges.extend(addToGraphCacheU2(nodes))
+        print "addToGraphU2 step 2: total edges "
+        print len(edges)
+        return dict(edges=edges)
+    
+
 
     @expose('json')
     def typeahead(self, *args,**kw):
