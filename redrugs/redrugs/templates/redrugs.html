@@ -7,10 +7,16 @@
     <script src="/javascript/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular-resource.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular-animate.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
-    <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/arbor.js"></script>
+    <script src="http://bumbu.github.io/cytoscape.js/lib/arbor.js"></script>
+    <script src="http://bumbu.github.io/cytoscape.js/lib/springy.js"></script>
+    <script src="http://bumbu.github.io/cytoscape.js/src/plugins/jquery.cytoscape-navigator.js"></script>
+    <script src="http://bumbu.github.io/cytoscape.js/src/plugins/jquery.cytoscape-panzoom.js"></script>
     <script src="/javascript/redrugs.js"></script>
+    <link rel="stylesheet" href="http://bumbu.github.io/cytoscape.js/src/plugins/jquery.cytoscape-panzoom.css" />
+    <link rel="stylesheet" href="http://bumbu.github.io/cytoscape.js/src/plugins/jquery.cytoscape-navigator.css" />
 <head>
   <title>Repurposing Drugs with Semantics</title>
 </head>
@@ -21,20 +27,75 @@ body {
   font: 14px helvetica neue, helvetica, arial, sans-serif;
 }
 
+.container {
+  width: 100%
+}
+
 #results {
   height: 700px;
-  width: 100%;
+  #width: 100%;
+}
+
+.controlPanel {
+  position:relative;
+  left:-280px;
+  width:300px;
+  border-width:1px;
+  z-index: 10;
 }
 </style>
-  <h1>Repurposing Drugs with Semantics</h1>
+  <h1 style="text-align:center">Repurposing Drugs with Semantics</h1>
   
-  <div class="center">
-    <form data-ng-submit="addToGraph(searchTerms)">
+  <div style="text-align: center">
+    <form class="form-horizontal" data-ng-submit="addToGraph(searchTerms)">
     Search for entities related to: <input id="searchBox" data-ng-model="searchTerms" type="text" data-provide="typeahead" autocomplete="off"/>
-    <input type="submit" id="submit" value="Add" />
+    <input class="btn" type="submit" id="submit" value="Add" />
+    <img width="20" data-ng-show="loading" src="../img/loader.gif"/>
+    <span class="alert alert-success" data-ng-show="!loading &amp;&amp; loaded != null">Found {{loaded}} connections.</span>
+    <div class="alert alert-danger" data-ng-show="!loading &amp;&amp; error">Server Error. Sorry about that, please try again later.</div>
     </form>
   </div>
-  <div id="results">
+  <div>
+    <div class="row-fluid">
+      <div class="span9" id="results">
+      </div>
+      <div style="height:700px" class="span3 well well-small">
+        <div class="tabbable"> <!-- Only required for left/right tabs -->
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#filter" data-toggle="tab">Filter</a></li>
+            <li><a href="#expand" data-toggle="tab">Expand</a></li>
+            <li><a href="#details" data-ng-click="selected = getSelected()" data-toggle="tab">Details</a></li>
+            <li><a href="#view" data-toggle="tab">View</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="filter">
+              asdf
+            </div>
+            <div class="tab-pane" id="expand">
+              <div class="btn-group">
+                <button data-ng-click="getUpstream(getSelected())" type="button" class="btn"><i class="icon-backward"/></button>
+                <button data-ng-click="getDownstream(getSelected())" type="button" class="btn"><i class="icon-forward"/></button>
+              </div>
+            </div>
+            <div class="tab-pane" id="details">
+              <iframe ng-repeat="s in selected" style="height:100px; width:100%;" src="{{s}}"/>
+            </div>
+            <div class="tab-pane" id="view">
+              <form class="form-horizontal" data-ng-submit="cy.layout(layout)">
+                <select id="layout-select" data-ng-model="layout.name">
+                  <option value="grid">Grid</option>
+                  <option value="random">Random</option>
+                  <option value="cose">Cose</option>
+                  <option value="circle">Circle</option>
+                  <option value="breadthfirst">Breadth first</option>
+                </select>
+                <input class="btn" type="submit" id="submit" value="Layout" />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>

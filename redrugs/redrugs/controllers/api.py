@@ -72,19 +72,11 @@ PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 prefix go: <http://purl.org/obo/owl/GO#GO_>
 
-SELECT distinct ?participant ?participantLabel ?target ?targetLabel ?interaction ?interactionType ?typeLabel ?probability ?searchEntity ?searchTerm where {
-  let ( 
-    ?searchEntity :=
+SELECT distinct ?participant ?participantLabel ?participantType ?target ?targetLabel ?interaction ?interactionType ?typeLabel ?probability ?searchEntity ?searchTerm where {
 {% for s in search %}\
-    <${s}>
+  { let ( ?searchEntity := <${s}>)
+    let ( ${position} := <${s}> ) }
 {% end %}\
-  )
-  let ( 
-    ${position} :=
-{% for s in search %}\
-    <${s}>
-{% end %}\
-  )
   ?searchEntity rdfs:label ?searchTerm.
   graph ?assertion {
     ?interaction sio:has-participant ?participant.
@@ -98,6 +90,8 @@ SELECT distinct ?participant ?participantLabel ?target ?targetLabel ?interaction
       sio:SIO_000300 ?probability;
     ].
   }
+  OPTIONAL { ?participant a ?participantType. }
+  OPTIONAL { ?target a ?targetType. }
   
   ?target rdfs:label ?targetLabel.
   ?participant rdfs:label ?participantLabel.
@@ -108,7 +102,7 @@ PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 prefix go: <http://purl.org/obo/owl/GO#GO_>
 
-SELECT distinct ?participant ?participantLabel ?target ?targetLabel ?interaction ?interactionType ?typeLabel ?probability ?searchEntity ?searchTerm where {
+SELECT distinct ?participant ?participantLabel ?participantType ?target ?targetLabel ?targetType ?interaction ?interactionType ?typeLabel ?probability ?searchEntity ?searchTerm where {
   let ( 
     ?searchEntity :=
 {% for s in search %}\
@@ -124,6 +118,8 @@ SELECT distinct ?participant ?participantLabel ?target ?targetLabel ?interaction
     ?interaction a ?interactionType.
   }
   OPTIONAL { ?interactionType rdfs:label ?typeLabel. }
+  OPTIONAL { ?participant a ?participantType. }
+  OPTIONAL { ?target a ?targetType. }
   OPTIONAL {
     ?assertion sio:SIO_000008 [
       a sio:SIO_000765;
@@ -157,7 +153,7 @@ def mergeByInteraction(edges):
         for i in interactions:
             if i['probability'] == None:
                 print i
-                i['probability'] = rdflib.Literal(0.5)
+                i['probability'] = rdflib.Literal(0.99)
         result = interactions[0]
         result['probability'] = geomean([i['probability'].value for i in interactions])
         return result
@@ -181,25 +177,49 @@ def mergeByInteractionType(edges):
     result = map(mergeInteractions, byInteraction.values())
     return result
 
-def addToGraphFn(search):
+def getProcessFn(search):
     edges = []
-    queries = [processAppendQueryTemplate.generate(Context(search=search)).render()]+[
-        appendQueryTemplate.generate(Context(search=search, position=searchRelation)).render() 
-        for searchRelation in searchRelations]
-    for q in queries:
+    q = processAppendQueryTemplate.generate(Context(search=search)).render()
+    print q
+    resultSet = model.graph.query(q)
+    variables = [x.replace("?","") for x in resultSet.vars]
+    edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
+    print len(edges)
+    edges = mergeByInteraction(edges)
+    edges = mergeByInteractionType(edges)
+    return edges
+
+getProcessCache = LRU_Cache(getProcessFn,maxsize=100)
+
+def getUpstreamFn(search):
+    edges = []
+    for s in search:
+        q = appendQueryTemplate.generate(Context(search=[s], position="?target")).render() 
         print q
         resultSet = model.graph.query(q)
         variables = [x.replace("?","") for x in resultSet.vars]
         edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
-        print len(edges)
-    print "initial:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
+    print len(edges)
     edges = mergeByInteraction(edges)
-    print "merge 1:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
     edges = mergeByInteractionType(edges)
-    print "merge 2:", [edge for edge in edges if edge['participantLabel'] == "Topiramate"]
     return edges
 
-addToGraphCache = LRU_Cache(addToGraphFn,maxsize=100)
+getUpstreamCache = LRU_Cache(getUpstreamFn,maxsize=100)
+
+def getDownstreamFn(search):
+    edges = []
+    for s in search:
+        q = appendQueryTemplate.generate(Context(search=[s], position="?participant")).render() 
+        print q
+        resultSet = model.graph.query(q)
+        variables = [x.replace("?","") for x in resultSet.vars]
+        edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
+    print len(edges)
+    edges = mergeByInteraction(edges)
+    edges = mergeByInteractionType(edges)
+    return edges
+
+getDownstreamCache = LRU_Cache(getDownstreamFn,maxsize=100)
 
 def addToGraphFnU2(nodes):
     edges = []
@@ -232,10 +252,9 @@ def addToGraphFnU2(nodes):
 
 addToGraphCacheU2 = LRU_Cache(addToGraphFnU2,maxsize=100)
 
-
 def typeaheadFn(search):
     resultSet = model.graph.query('''prefix bd: <http://www.bigdata.com/rdf/search#>
-    select distinct ?o ?s where {{
+    select distinct ?o ?s ?class ?classLabel where {{
       ?o bd:search """{0}.*""" .
       ?s rdfs:label ?o.
       FILTER(isURI(?s))
@@ -245,17 +264,32 @@ def typeaheadFn(search):
 
 typeaheadCache = LRU_Cache(typeaheadFn,maxsize=100)
 
+
 class ApiController(BaseController):
 
-    
     @expose('json')
     def addToGraph(self,*args, **kw):
         search = tuple(kw['uris'].split(","))
         print search
-        edges = addToGraphCache(search)
+        edges = getProcessCache(search)+getUpstreamCache(search)+getDownstreamCache(search) 
         print len(edges)
         return dict(edges=edges)
     
+    @expose('json')
+    def getUpstream(self,*args, **kw):
+        search = tuple(kw['uris'].split(","))
+        print search
+        edges = getUpstreamCache(search)
+        print len(edges)
+        return dict(edges=edges)
+    
+    @expose('json')
+    def getDownstream(self,*args, **kw):
+        search = tuple(kw['uris'].split(","))
+        print search
+        edges = getDownstreamCache(search)
+        print len(edges)
+        return dict(edges=edges)
     
     @expose('json')
     def addToGraphU2(self,*args, **kw):
