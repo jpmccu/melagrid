@@ -20,6 +20,7 @@ class BaseController(TGController):
     """
 
     def __call__(self, environ, start_response):
+        environ['request_body'] = start_response.request.body
         """Invoke the Controller"""
         # TGController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is

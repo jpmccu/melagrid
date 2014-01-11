@@ -131,11 +131,11 @@ class RootController(BaseController):
 
     redrugs = ReDrugSController()
     
-    @expose('redrugs.templates.resource')
-    def _default(self,*args, **kw):
-        print kw
-        """Handle the front-page."""
-        return self.resource.get(*args, **kw)
+    #@expose('redrugs.templates.resource')
+    #def _default(self,*args, **kw):
+    #    print kw
+    #    """Handle the front-page."""
+    #    return self.resource.get(*args, **kw)
 
     @expose('redrugs.templates.about')
     def about(self):
@@ -147,7 +147,7 @@ class RootController(BaseController):
         """This method showcases TG's access to the wsgi environment."""
         return dict(page='environ', environment=request.environ)
 
-    resource = ResourceController()
+    #resource = ResourceController()
     api = ApiController()
 
     @expose('redrugs.templates.data')

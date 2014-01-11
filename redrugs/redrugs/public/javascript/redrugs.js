@@ -11,17 +11,23 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
     $scope.resources = {};
     $scope.searchTerms = "";
     $scope.searchTermURIs = {};
-    $scope.getNode = function(uri) {
-        var node = $scope.nodeMap[uri];
+    $scope.getNode = function(res) {
+        var node = $scope.nodeMap[res.uri];
         if (!node) {
-            node = $scope.nodeMap[uri] = {
+            node = $scope.nodeMap[res.uri] = {
                 group: "nodes",
                 data: {
-                    id: uri,
-                    types: {}
+                    id: res.uri,
+                    types: {},
+                    resource: res
                 }
             };
-            $scope.elements.nodes.push(node);
+            node.data.label = res[$scope.ns.rdfs('label')];
+            if (res[$scope.ns.rdf('type')]) res[$scope.ns.rdf('type')].forEach(function(d) {
+                node.data.types[d.uri] = true;
+            })
+            node.data.shape = $scope.getShape(node.data.types);
+            node.data.color = $scope.getColor(node.data.types);
         }
         return node;
     }
@@ -47,7 +53,7 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
             .selector('edge')
             .css({
                 'target-arrow-shape': 'triangle',
-                'opacity':0.5,
+                'opacity':'data(probability)',
                 'width':"mapData(likelihood,0,2.5,0.5,10)",
                 'target-arrow-shape': 'data(shape)'
             })
@@ -86,7 +92,7 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
             });
 	    $scope.container.cytoscapePanzoom();
             
-	    $scope.container.cytoscapeNavigator();
+	    //$scope.container.cytoscapeNavigator();
             
             //$scope.cy.elements().one('select','node',function() {
             //    $scope.selected = $scope.getSelected();
@@ -97,6 +103,21 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
         }
     });
 
+    $scope.graph = $.Graph();
+    $scope.ns = {
+        rdf: $.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+        rdfs: $.Namespace("http://www.w3.org/2000/01/rdf-schema#"),
+        prov: $.Namespace("http://www.w3.org/ns/prov#"),
+        pml: $.Namespace("http://provenanceweb.org/ns/pml#"),
+        sio: $.Namespace("http://semanticscience.org/resource/"),
+        local: $.Namespace("urn:redrugs:"),
+    };
+    $scope.services = {
+        search: $.SadiService("/api/search"),
+        process: $.SadiService("/api/process"),
+        upstream: $.SadiService("/api/upstream"),
+        downstream: $.SadiService("/api/downstream"),
+    };
     $("#searchBox").typeahead({
         minLength: 3,
         items: 10,
@@ -107,18 +128,22 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
         },
         source: function(query, process) {
             console.log(query);
-            $http({method:'GET',url:"/api/typeahead?q="+encodeURIComponent(query)})
-                .success(function(data) {
-                    var keywords = data.keywords.map(function(d) {
-                        var result = $.trim(d[0]);
-                        //if (d[3]) result  = result + " ("+$.trim(d[3])+")";
-                        //else if (d[2]) result = result + " ("+$.trim(d[2])+")";
-                        $scope.searchTermURIs[result] = d[1];
-                        return result;
-                    })
-                    process(keywords);
+            var g = new $.Graph();
+            var res = g.getResource($scope.ns.local("query"))
+            res[$scope.ns.prov('value')] = [query];
+            res[$scope.ns.rdf('type')] = [g.getResource($scope.ns.pml('Query'))]
+            $scope.services.search(g,function(graph) {
+                var keywords = graph.resources.map(function(d) {
+                    return graph.getResource(d);
+                }).filter(function(d) {
+                    return d[$scope.ns.pml('answers')];
+                }).map(function(d) {
+                    var result = d[$scope.ns.rdfs('label')][0];
+                    $scope.searchTermURIs[result] = d.uri;
+                    return result;
                 })
-                .error($scope.handleError);
+                process(keywords);
+            }, $scope.graph, $scope.handleError);
         } 
     });
     $scope.handleError = function(data,status, headers, config) {
@@ -133,38 +158,50 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
         
         selected.nodes().each(function(i,d) {
             console.log(d);
-            query.push(d.id())});
+            query.push(d.id())
+        });
         console.log(query);
         return query;
+    }
+    $scope.createResource = function(uri, graph) {
+        var entity = graph.getResource(uri,'uri');
+        entity[$scope.ns.rdf('type')] = [
+            graph.getResource($scope.ns.sio('process'),'uri'),
+            graph.getResource($scope.ns.sio('material-entity'),'uri')
+        ];
+        return entity;
     }
     $scope.addToGraph = function(query) {
         $scope.loading = true;
         console.log(query);
-        query = [query].map(function(d) {
-            return encodeURIComponent($scope.searchTermURIs[$.trim(d)])
-        }).join(",")
-        console.log(query);
-        $http({method:'GET',url:"/api/addToGraph?uris="+query})
-            .success($scope.appendToGraph)
-            .error($scope.handleError);
+        var g = new $.Graph();
+        $scope.createResource($scope.searchTermURIs[$.trim(query)],g);
+        console.log(g.toJSON());
+        $scope.services.process(g,function(graph){
+            $scope.services.upstream(g,function(graph){
+                $scope.services.downstream(g,$scope.appendToGraph,$scope.graph,$scope.handleError);
+            },$scope.graph,$scope.handleError);
+        },$scope.graph,$scope.handleError);
     }
     $scope.getUpstream = function(query) {
         $scope.loading = true;
         console.log(query);
-        query = query.map(encodeURIComponent).join(",")
-        console.log(query);
-        $http({method:'GET',url:"/api/getUpstream?uris="+query})
-            .success($scope.appendToGraph)
-            .error($scope.handleError);
+        var g = new $.Graph();
+        query.forEach(function(d) {
+            $scope.createResource(d,g);
+        });
+        console.log(g.toJSON());
+        $scope.services.upstream(g,$scope.appendToGraph,$scope.graph,$scope.handleError);
     }
     $scope.getDownstream = function(query) {
         $scope.loading = true;
         console.log(query);
-        query = query.map(encodeURIComponent).join(",")
-        console.log(query);
-        $http({method:'GET',url:"/api/getDownstream?uris="+query})
-            .success($scope.appendToGraph)
-            .error($scope.handleError);
+        var g = new $.Graph();
+        query.forEach(function(d) {
+            $scope.createResource(d,g);
+        });
+        console.log(g.toJSON());
+        $scope.services.downstream(g,$scope.appendToGraph,$scope.graph,$scope.handleError);
     }
     $scope.addToGraphU2 = function(query) {
         console.log(query);
@@ -220,40 +257,47 @@ redrugsApp.controller('ReDrugSCtrl', function ReDrugSCtrl($scope, $http) {
     };
     $scope.appendToGraph = function(result) {
         console.log(result);
-        $scope.edges = $scope.edges.concat(result.edges);
         var elements = [];
-        result.edges.forEach(function(row) {
-            if (!(row.probability > 0.9)) return;
-            var source = $scope.getNode(row.participant);
-            source.data.label = row.participantLabel;
-            source.data.types[row.participantType] = true;
-            source.data.shape = $scope.getShape(source.data.types);
-            source.data.color = $scope.getColor(source.data.types);
-            elements.push(source);
-            var target = $scope.getNode(row.target);
-            target.data.label = row.targetLabel;
-            target.data.types[row.targetType] = true;
-            target.data.shape = $scope.getShape(target.data.types);
-            target.data.color = $scope.getColor(target.data.types);
-            elements.push(target);
-            var edge = {
-                group: "edges",
-                data: $().extend({}, row, {
-                    id: row.interactions[0],
-                    source:source.data.id,
-                    target:target.data.id,
-                    shape: $scope.edgeTypes[row.interactionType] ? $scope.edgeTypes[row.interactionType] : 'none'
-                })
-            };
-            if (!$scope.edgeTypes[row.interactionType])
-                console.log("Missing interaction tyoe:", row.interactionType);
-            elements.push(edge);
-        });
+        result.resources.map(function(d) {
+            return result.getResource(d);
+        })
+            .filter(function(d) {
+                return d[$scope.ns.sio('has-target')];
+            })
+            //.filter(function(d) {
+            //    if (!d[$scope.ns.sio('probability-value')])
+            //        console.log(d);
+            //    return d[$scope.ns.sio('probability-value')][0] > 0.9;
+            //})
+            .forEach(function(d) {
+                var s = d[$scope.ns.sio('has-participant')][0];
+                var t = d[$scope.ns.sio('has-target')][0];
+                var source = $scope.getNode(s);
+                var target = $scope.getNode(t);
+                elements.push(source);
+                elements.push(target);
+                var edgeTypes = d[$scope.ns.rdf('type')];
+                var edge = {
+                    group: "edges",
+                    data: $().extend({}, d, {
+                        id: d[$scope.ns.prov('wasDerivedFrom')][0].uri,
+                        source: source.data.id,
+                        target: target.data.id,
+                        shape: edgeTypes ? $scope.edgeTypes[edgeTypes[0].uri] : 'none',
+                        probability: d[$scope.ns.sio('probability-value')][0],
+                        likelihood: d[$scope.ns.sio('likelihood')][0],
+                        resource: d
+                    })
+                };
+                if (edgeTypes && !$scope.edgeTypes[edgeTypes[0].uri])
+                    console.log("Missing interaction tyoe:", edgeTypes[0].uri);
+                elements.push(edge);
+            });
         $scope.cy.add(elements);
         $scope.cy.layout($scope.layout);
         console.log(elements);
         $scope.loading = false;
-        $scope.loaded = result.edges.length;
+        $scope.loaded = result.resources.length;
         //$scope.updateDisplay();
     }
     $scope.result = $("#result");

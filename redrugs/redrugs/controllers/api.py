@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
 
-from tg import expose, flash, require, url, lurl, request, redirect, tmpl_context, config
+from tg import expose, flash, require, url, lurl, request, response, redirect, tmpl_context, config
 from tg.i18n import ugettext as _, lazy_ugettext as l_
 from redrugs.model import graph
 from redrugs import model
@@ -13,33 +13,29 @@ from redrugs.controllers.error import ErrorController
 from tg.controllers import RestController
 from genshi.template import NewTextTemplate
 from genshi.template.base import Context
-
+from pylons.controllers.core import WSGIController
 import collections, math
+import sadi
 
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 __all__ = ['RootController']
 
-class LRU_Cache:
+def lru(original_function, maxsize=1000):
+    mapping = {}
 
-    def __init__(self, original_function, maxsize=1000):
-        self.original_function = original_function
-        self.maxsize = maxsize
-        self.mapping = {}
+    PREV, NEXT, KEY, VALUE = 0, 1, 2, 3         # link fields
+    head = [None, None, None, None]        # oldest
+    tail = [head, None, None, None]   # newest
+    head[NEXT] = tail
 
-        PREV, NEXT, KEY, VALUE = 0, 1, 2, 3         # link fields
-        self.head = [None, None, None, None]        # oldest
-        self.tail = [self.head, None, None, None]   # newest
-        self.head[NEXT] = self.tail
-
-    def __call__(self, *key):
+    def fn(*key):
         PREV, NEXT = 0, 1
-        mapping, head, tail = self.mapping, self.head, self.tail
 
         link = mapping.get(key, head)
         if link is head:
-            value = self.original_function(*key)
-            if len(mapping) >= self.maxsize:
+            value = original_function(*key)
+            if len(mapping) >= maxsize:
                 old_prev, old_next, old_key, old_value = head[NEXT]
                 head[NEXT] = old_next
                 old_next[PREV] = head
@@ -56,6 +52,7 @@ class LRU_Cache:
             link[PREV] = last
             link[NEXT] = tail
         return value
+    return fn
 
 
 def geomean(nums):
@@ -152,7 +149,7 @@ def mergeByInteraction(edges):
     def mergeInteractions(interactions):
         for i in interactions:
             if i['probability'] == None:
-                print i
+                #print i
                 i['probability'] = rdflib.Literal(0.99)
         result = interactions[0]
         result['probability'] = geomean([i['probability'].value for i in interactions])
@@ -177,49 +174,105 @@ def mergeByInteractionType(edges):
     result = map(mergeInteractions, byInteraction.values())
     return result
 
-def getProcessFn(search):
-    edges = []
-    q = processAppendQueryTemplate.generate(Context(search=search)).render()
-    print q
-    resultSet = model.graph.query(q)
-    variables = [x.replace("?","") for x in resultSet.vars]
-    edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
-    print len(edges)
-    edges = mergeByInteraction(edges)
-    edges = mergeByInteractionType(edges)
-    return edges
+sio = rdflib.Namespace("http://semanticscience.org/resource/")
+prov = rdflib.Namespace("http://www.w3.org/ns/prov#")
+void = rdflib.Namespace("http://rdfs.org/ns/void#")
+pml = rdflib.Namespace("http://provenanceweb.org/ns/pml#")
 
-getProcessCache = LRU_Cache(getProcessFn,maxsize=100)
+class InteractionsService(sadi.Service):
+    
+    def process(self,i,o):
+        edges = self.get_interactions(str(i.identifier))
+        for i in edges:
+            interaction = o.graph.resource(rdflib.BNode())
+            if 'interactionType' in i and i['interactionType']:
+                interaction.add(rdflib.RDF.type, rdflib.URIRef(i['interactionType']))
+            for d in i['interactions']:
+                interaction.add(prov.wasDerivedFrom,rdflib.URIRef(d))
+            target = o.graph.resource(i['target'])
+            if 'targetType' in i and i['targetType']:
+                target.add(rdflib.RDF.type, rdflib.URIRef(i['targetType']))
+            target.add(rdflib.RDFS.label, rdflib.Literal(i['targetLabel']))
+            interaction.add(sio['has-target'],target.identifier)
+            participant = o.graph.resource(i['participant'])
+            if 'participantType' in i and i['participantType']:
+                participant.add(rdflib.RDF.type, rdflib.URIRef(i['participantType']))
+            participant.add(rdflib.RDFS.label, rdflib.Literal(i['participantLabel']))
+            interaction.add(sio['has-participant'],participant.identifier)
+            interaction.add(sio['probability-value'], rdflib.Literal(i['probability']))
+            interaction.add(sio.likelihood, rdflib.Literal(i['likelihood']))
 
-def getUpstreamFn(search):
-    edges = []
-    for s in search:
-        q = appendQueryTemplate.generate(Context(search=[s], position="?target")).render() 
+    def getOrganization(self):
+        result = self.Organization()
+        result.add(rdflib.RDFS.label,rdflib.Literal("Tetherless World Constellation, RPI"))
+        result.add(sadi.mygrid.authoritative, rdflib.Literal(False))
+        result.add(sadi.dc.creator, rdflib.URIRef('mailto:mccusj@rpi.edu'))
+        return result
+
+    @lru
+    def get_interactions(self,search):
+        q = self.create_query(search)
+        edges = []
         print q
         resultSet = model.graph.query(q)
         variables = [x.replace("?","") for x in resultSet.vars]
         edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
-    print len(edges)
-    edges = mergeByInteraction(edges)
-    edges = mergeByInteractionType(edges)
-    return edges
+        print len(edges)
+        edges = mergeByInteraction(edges)
+        edges = mergeByInteractionType(edges)
+        return edges
 
-getUpstreamCache = LRU_Cache(getUpstreamFn,maxsize=100)
+            
+class InteractionsInBiologicalProcessService(InteractionsService):
+    label = "Find Interactions in a Biological Process"
+    serviceDescriptionText = 'Find interactions whose participants or targets also participate in the input process.'
+    comment = 'Find interactions whose participants or targets also participate in the input process.'
+    serviceNameText = "Find Interactions in a Biological Process"
+    name = "process"
 
-def getDownstreamFn(search):
-    edges = []
-    for s in search:
-        q = appendQueryTemplate.generate(Context(search=[s], position="?participant")).render() 
-        print q
-        resultSet = model.graph.query(q)
-        variables = [x.replace("?","") for x in resultSet.vars]
-        edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
-    print len(edges)
-    edges = mergeByInteraction(edges)
-    edges = mergeByInteractionType(edges)
-    return edges
+    def create_query(self, search):
+        q = processAppendQueryTemplate.generate(Context(search=search)).render()
+        return q
 
-getDownstreamCache = LRU_Cache(getDownstreamFn,maxsize=100)
+    def getInputClass(self):
+        return sio.process
+
+    def getOutputClass(self):
+        return sio.process
+
+class FindUpstreamAgentsService(InteractionsService):
+    label = "Find Upstream Participants"
+    serviceDescriptionText = 'Find interactions that the input entity is a target of in and have explicit participants.'
+    comment = 'Find interactions that the input entity is a target of in and have explicit participants.'
+    serviceNameText = "Find Upstream Targets"
+    name = "upstream"
+
+    def create_query(self,search):
+        q = appendQueryTemplate.generate(Context(search=[search], position="?target")).render() 
+        return q
+
+    def getInputClass(self):
+        return sio['material-entity']
+
+    def getOutputClass(self):
+        return sio.agent
+
+class FindDownstreamTargetsService(InteractionsService):
+    label = "Find Downstream Targets"
+    serviceDescriptionText = 'Find interactions that the input entity participates in and have explicit targets.'
+    comment = 'Find interactions that the input entity participates in and have explicit targets.'
+    serviceNameText = "Find Downstream Targets"
+    name = "downstream"
+
+    def create_query(self,search):
+        q = appendQueryTemplate.generate(Context(search=[search], position="?participant")).render() 
+        return q
+
+    def getInputClass(self):
+        return sio['material-entity']
+
+    def getOutputClass(self):
+        return sio.target
 
 def addToGraphFnU2(nodes):
     edges = []
@@ -235,8 +288,8 @@ def addToGraphFnU2(nodes):
     queriesT = tuple(queriesL)
 
     for q in queriesT:
-        print "\nQuery:"
-        print q
+        #print "\nQuery:"
+        #print q
         resultSet = model.graph.query(q)
         variables = [x.replace("?","") for x in resultSet.vars]
         edges.extend([dict([(variables[i],x[i]) for i  in range(len(x))]) for x in resultSet])
@@ -250,70 +303,83 @@ def addToGraphFnU2(nodes):
     print len(edges)
     return edges
 
-addToGraphCacheU2 = LRU_Cache(addToGraphFnU2,maxsize=100)
+class TextSearchService(sadi.Service):
+    label = "Resource Text Search"
+    serviceDescriptionText = 'Look up resources using free text search against their RDFS labels. This service is optimized for typeahead user interfaces.'
+    comment = 'Look up resources using free text search. This service is optimized for typeahead user interfaces.'
+    serviceNameText = "Resource Text Search"
+    name = "search"
 
-def typeaheadFn(search):
-    resultSet = model.graph.query('''prefix bd: <http://www.bigdata.com/rdf/search#>
-    select distinct ?o ?s ?class ?classLabel where {{
-      ?o bd:search """{0}.*""" .
-      ?s rdfs:label ?o.
-      FILTER(isURI(?s))
-    }}  limit 10'''.format(search))
-    result = [[y for y in x] for x in resultSet]
-    return result
+    def getOrganization(self):
+        result = self.Organization()
+        result.add(rdflib.RDFS.label,rdflib.Literal("Tetherless World Constellation, RPI"))
+        result.add(sadi.mygrid.authoritative, rdflib.Literal(False))
+        result.add(sadi.dc.creator, rdflib.URIRef('mailto:mccusj@rpi.edu'))
+        return result
+    
+    def getInputClass(self):
+        return pml.Query
 
-typeaheadCache = LRU_Cache(typeaheadFn,maxsize=100)
+    def getOutputClass(self):
+        return pml.AnsweredQuery
 
+    def process(self,i,o):
+        answers = self.get_matches(i.value(prov.value))
+        for a in answers:
+            answer = o.graph.resource(a[1])
+            answer.add(rdflib.RDFS.label, rdflib.Literal(rdflib.Literal(a[0])))
+            answer.add(pml.answers,o.identifier)
 
+    @lru
+    def get_matches(self,search):
+        resultSet = model.graph.query('''prefix bd: <http://www.bigdata.com/rdf/search#>
+          select distinct ?o ?s  where {{
+            ?o bd:search """{0}.*""" .
+            ?s rdfs:label ?o.
+            FILTER(isURI(?s))
+          }}  limit 10'''.format(search))
+        result = [[y for y in x] for x in resultSet]
+        return result
+
+def wsgi_wrap(fn):
+    def call(self):
+        tglocals = request.environ['tg.locals']
+        def start_response(status, headers, exc_info=None):
+            response.status = status
+            response.headers.update(headers)
+            if exc_info:
+                response.headerlist = exc_info
+        tglocals.request.body = request.environ['request_body']
+        return fn(self,tglocals.request.environ, start_response)
+    return call
+
+exp = expose()
 class ApiController(BaseController):
+    @expose('json')
+    def index(self):
+        return {"greeting":"Hello."}
+    
+    _process = FindUpstreamAgentsService()
+    _upstream = FindUpstreamAgentsService()
+    _downstream = FindDownstreamTargetsService()
+    _search = TextSearchService()
 
-    @expose('json')
-    def addToGraph(self,*args, **kw):
-        search = tuple(kw['uris'].split(","))
-        print search
-        edges = getProcessCache(search)+getUpstreamCache(search)+getDownstreamCache(search) 
-        print len(edges)
-        return dict(edges=edges)
-    
-    @expose('json')
-    def getUpstream(self,*args, **kw):
-        search = tuple(kw['uris'].split(","))
-        print search
-        edges = getUpstreamCache(search)
-        print len(edges)
-        return dict(edges=edges)
-    
-    @expose('json')
-    def getDownstream(self,*args, **kw):
-        search = tuple(kw['uris'].split(","))
-        print search
-        edges = getDownstreamCache(search)
-        print len(edges)
-        return dict(edges=edges)
-    
-    @expose('json')
-    def addToGraphU2(self,*args, **kw):
-        search = tuple(kw['uris'].split(","))
-        print search
-        edges = addToGraphCacheU2(search)
-        print "addToGraphU2 step 1: total edges"
-        print len(edges)
-        search2 = []
-        for edge in edges:
-          print edge
-          search2.append(edge['participant'])
-        nodes = tuple(search2)
-        edges.extend(addToGraphCacheU2(nodes))
-        print "addToGraphU2 step 2: total edges "
-        print len(edges)
-        return dict(edges=edges)
-    
+    @expose()
+    @wsgi_wrap
+    def process(self,environ, start_response):
+        return self._process(environ, start_response)
 
+    @expose()
+    @wsgi_wrap
+    def upstream(self,environ, start_response):
+        return self._upstream(environ, start_response)
 
-    @expose('json')
-    def typeahead(self, *args,**kw):
-        search = kw['q']
-        print search
-        result = typeaheadFn(search)
-        print result
-        return dict(keywords=result)
+    @expose()
+    @wsgi_wrap
+    def downstream(self,environ, start_response):
+        return self._downstream(environ, start_response)
+
+    @expose()
+    @wsgi_wrap
+    def search(self,environ, start_response):
+        return self._search(environ, start_response)

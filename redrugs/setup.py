@@ -39,6 +39,7 @@ install_requires=[
     "tw2.forms",
     "rdflib",
     "rdflib-jsonld",
+    "sadi",
     ]
 
 setup(
