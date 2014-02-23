@@ -1,0 +1,9 @@
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX up:<http://purl.uniprot.org/core/>
+SELECT distinct ?protein ?phenotype
+WHERE
+{
+ ?protein a up:Protein .
+ ?protein rdfs:seeAlso ?phenotype .
+ ?phenotype <http://purl.uniprot.org/core/database> <http://purl.uniprot.org/database/MIM>; rdfs:comment "phenotype".
+}

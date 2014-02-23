@@ -1,0 +1,61 @@
+header = '''protein
+phenotype'''.split('\n')
+skip_rows = 1
+#process_rows = 1000
+delimiter=","
+
+def preprocess(x):
+    x['protein'] = x['protein'].replace('http://purl.uniprot.org/uniprot/','http://bio2rdf.org/uniprot:')
+    x['phenotype'] = x['phenotype'].replace('http://purl.uniprot.org/mim/','http://bio2rdf.org/omim:')
+    return x
+
+preamble  = '''
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix nanopub: <http://www.nanopub.org/nschema#> .
+@prefix opm: <http://purl.org/net/opmv/ns#> .
+@prefix pav: <http://swan.mindinformatics.org/ontologies/1.2/pav/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix org: <http://lod.melagrid.org/source/melagrid-org/dataset/organizations/> .
+@prefix : <http://lod.melagrid.org/source/data-melagrid-org/dataset/omim/> .
+@prefix vocab: <http://lod.melagrid.org/source/data-melagrid-org/dataset/omim/vocab/> .
+@prefix MI: <http://purl.obolibrary.org/obo/MI_> .
+:OMIMInferredByCurator rdfs:subclassOf MI:0364.
+}
+'''
+body = '''
+ 
+{
+  :NanoPub_${linenum} a nanopub:Nanopublication ;
+    nanopub:hasAssertion :NanoPub_${linenum}_Assertion ;
+    nanopub:hasProvenance :NanoPub_${linenum}_Provenance .
+ 
+  :NanoPub_${linenum}_Provenance nanopub:hasAttribution :NanoPub_${linenum}_Attribution ;
+    nanopub:hasSupporting :NanoPub_${linenum}_Supporting .
+ 
+  :NanoPub_${linenum}_Assertion a nanopub:Assertion .
+  :NanoPub_${linenum}_Provenance a nanopub:Provenance .
+  :NanoPub_${linenum}_Attribution a nanopub:Attribution .
+  :NanoPub_${linenum}_Supporting a nanopub:Supporting .
+}
+
+:NanoPub_${linenum}_Supporting {
+  :NanoPub_${linenum}_Assertion  
+    prov:wasGeneratedBy :NanoPub_${linenum}_Assertion_Activity.
+  :NanoPub_${linenum}_Assertion_Activity a prov:Activity, MI:0364, :OMIMInferredByCurator.  
+}
+:NanoPub_${linenum}_Attribution {
+  :NanoPub_${linenum}_Assertion  
+    prov:wasAttributedTo org:omim.
+}
+:NanoPub_${linenum}_Assertion {
+  <${phenotype}> sio:has-participant <${protein}>;
+     a sio:SIO_010299.
+}
+
+'''
+footer = '''
+'''
+
