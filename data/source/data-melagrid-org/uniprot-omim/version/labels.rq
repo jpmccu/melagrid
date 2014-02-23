@@ -1,0 +1,9 @@
+construct {
+  ?phenotype rdfs:label ?label.
+} where {
+  ?phenotype a <http://bio2rdf.org/omim_vocabulary:Phenotype>.
+  {?phenotype <http://bio2rdf.org/omim_vocabulary:preferred-title> ?label.}
+  UNION
+  {?phenotype <http://bio2rdf.org/omim_vocabulary:alternative-title> ?label.}
+    
+} order by asc(?phenotype)
