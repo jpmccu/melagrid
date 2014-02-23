@@ -22,7 +22,11 @@ preamble  = '''
 @prefix : <http://lod.melagrid.org/source/data-melagrid-org/dataset/omim/> .
 @prefix vocab: <http://lod.melagrid.org/source/data-melagrid-org/dataset/omim/vocab/> .
 @prefix MI: <http://purl.obolibrary.org/obo/MI_> .
-:OMIMInferredByCurator rdfs:subclassOf MI:0364.
+
+{
+  :OMIMInferredByCurator rdfs:subclassOf MI:0364.
+  :OMIMPhenotypeInfluence rdfs:subClassof sio:process, prov:Activity.
+  sio:SIO_010056 rdfs:label "phenotype".
 }
 '''
 body = '''
@@ -51,8 +55,11 @@ body = '''
     prov:wasAttributedTo org:omim.
 }
 :NanoPub_${linenum}_Assertion {
-  <${phenotype}> sio:has-participant <${protein}>;
-     a sio:SIO_010299.
+  :NanoPub_${linenum}_influence a :OMIMPhenotypeInfluence;
+     sio:has-participant <${protein}>;
+     sio:has-target <${phenotype}>.
+  
+     <${phenotype}> a sio:SIO_010056.
 }
 
 '''
