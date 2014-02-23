@@ -22,3 +22,9 @@
 version=`date "+%Y-%m-%d"`
 mkdir -p $version/source $version/automatic
 curl 'http://logd.tw.rpi.edu/sparql.php?query-option=uri&query-uri=https%3A%2F%2Fraw.github.com%2Fjimmccusker%2Fmelagrid%2Fmaster%2Fdata%2Fsource%2Fdata-melagrid-org%2Funiprot-omim%2Fversion%2Fretreive.rq&service-uri=http%3A%2F%2Fbeta.sparql.uniprot.org%2Fsparql&output=csv&callback=&tqx=&tp=' -o $version/source/uniprot-omim.csv
+
+curl 'http://omim.bio2rdf.org/sparql?default-graph-uri=&query=construct+%7B%0D%0A++%3Fphenotype+rdfs%3Alabel+%3Flabel.%0D%0A%7D+where+%7B%0D%0A++%3Fphenotype+a+%3Chttp%3A%2F%2Fbio2rdf.org%2Fomim_vocabulary%3APhenotype%3E.%0D%0A++%7B%3Fphenotype+%3Chttp%3A%2F%2Fbio2rdf.org%2Fomim_vocabulary%3Apreferred-title%3E+%3Flabel.%7D%0D%0A++UNION%0D%0A++%7B%3Fphenotype+%3Chttp%3A%2F%2Fbio2rdf.org%2Fomim_vocabulary%3Aalternative-title%3E+%3Flabel.%7D%0D%0A++++%0D%0A%7D++limit+10000&format=text%2Frdf%2Bn3&timeout=0&debug=on' -o $version/source/omim-labels-1.ttl
+
+curl 'http://omim.bio2rdf.org/sparql?default-graph-uri=&query=construct+%7B%0D%0A++%3Fphenotype+rdfs%3Alabel+%3Flabel.%0D%0A%7D+where+%7B%0D%0A++%3Fphenotype+a+%3Chttp%3A%2F%2Fbio2rdf.org%2Fomim_vocabulary%3APhenotype%3E.%0D%0A++%7B%3Fphenotype+%3Chttp%3A%2F%2Fbio2rdf.org%2Fomim_vocabulary%3Apreferred-title%3E+%3Flabel.%7D%0D%0A++UNION%0D%0A++%7B%3Fphenotype+%3Chttp%3A%2F%2Fbio2rdf.org%2Fomim_vocabulary%3Aalternative-title%3E+%3Flabel.%7D%0D%0A++++%0D%0A%7D++limit+10000+offset+10000&format=text%2Frdf%2Bn3&timeout=0&debug=on' -o $version/source/omim-labels-2.ttl
+
+cat $version/source/omim-labels*.ttl > $version/automatic/omim-labels.ttl
